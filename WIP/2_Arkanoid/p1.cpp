@@ -70,6 +70,10 @@ struct Ball
 	float bottom() 	const noexcept { return y() + shape.getRadius(); }
 };
 
+// We can now refactor our code by creating a Rectangle class
+// that encapsulates the common properties for `Brick` and `Paddle`.
+// There is no run-time overhead when we avoid using `virtual` methods
+// in hierarchies. 
 struct Rectangle
 {
 	RectangleShape shape;

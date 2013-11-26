@@ -11,21 +11,21 @@ using namespace sf;
 constexpr int windowWidth{800}, windowHeight{600};
 constexpr float	ballRadius{10.f};
 
-// Let's create a class for our Ball
-// `struct` == `class` in C++
+// Let's create a class for our Ball.
+// `struct` == `class` in C++.
 struct Ball
 {
 	// CircleShape is an SFML class that 
-	// defines a renderable circle
+	// defines a renderable circle.
 	CircleShape shape;
 
-	// Let's create the Ball constructor
-	// argument mX -> starting x coordinate
-	// argument mY -> starting y coordinate
+	// Let's create the Ball constructor.
+	// (argument mX -> starting x coordinate)
+	// (argument mY -> starting y coordinate)
 	Ball(float mX, float mY) 
 	{
 		// Apply position, radius, color and origin 		 
-		// to the CircleShape `shape`
+		// to the CircleShape `shape`.
 		shape.setPosition(mX, mY);		
 		shape.setRadius(ballRadius);
 		shape.setFillColor(Color::Red);

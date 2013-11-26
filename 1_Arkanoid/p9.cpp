@@ -46,8 +46,6 @@ struct Ball
 	float bottom() 	{ return y() + shape.getRadius(); }
 };
 
-// We can now refactor our code by creating a Rectangle class
-// that encapsulates the common properties for `Brick` and `Paddle`
 struct Rectangle
 {
 	RectangleShape shape;

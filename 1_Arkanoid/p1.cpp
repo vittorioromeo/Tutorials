@@ -8,25 +8,25 @@
 using namespace std;
 using namespace sf;
 
-// `constexpr` defines an immutable compile-time value
+// `constexpr` defines an immutable compile-time value.
 constexpr int windowWidth{800}, windowHeight{600};
 
 int main() 
 {
-	// Creation of the game window
+	// Creation of the game window.
 	RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 1"};
 	window.setFramerateLimit(60);
 	
-	// Game loop
+	// Game loop.
 	while(true)
 	{
-		// "Clear" the window from previously drawn graphics
+		// "Clear" the window from previously drawn graphics.
 		window.clear(Color::Black);
 
-		// If "Escape" is pressed, break out of the loop
+		// If "Escape" is pressed, break out of the loop.
 		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
 
-		// Show the window contents
+		// Show the window contents.
 		window.display();
 	}	
 

@@ -114,17 +114,17 @@ void testCollision(Paddle& mPaddle, Ball& mBall)
 	else mBall.velocity.x = ballVelocity;
 }
 
-// Here's the most complex part of our game: ball-brick collision
+// Here's the most complex part of our game: ball-brick collision.
 void testCollision(Brick& mBrick, Ball& mBall)
 {
-	// If there's no intersection, get out of the function
+	// If there's no intersection, get out of the function.
 	if(!isIntersecting(mBrick, mBall)) return;
 
 	// Otherwise, the brick has been hit!
 	mBrick.destroyed = true;
 
 	// Let's calculate how much the ball intersects the brick
-	// in every direction
+	// in every direction.
 	float overlapLeft{mBall.right() - mBrick.left()};
 	float overlapRight{mBrick.right() - mBall.left()};
 	float overlapTop{mBall.bottom() - mBrick.top()};
@@ -132,22 +132,22 @@ void testCollision(Brick& mBrick, Ball& mBall)
 
 	// If the magnitude of the left overlap is smaller than the
 	// right one we can safely assume the ball hit the brick
-	// from the left
+	// from the left.
 	bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
 
-	// We can apply the same idea for top/bottom collisions
+	// We can apply the same idea for top/bottom collisions.
 	bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
 
-	// Let's store the minimum overlaps for the X and Y axes
+	// Let's store the minimum overlaps for the X and Y axes.
 	float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
 	float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
 
 	// If the magnitude of the X overlap is less than the magnitude
 	// of the Y overlap, we can safely assume the ball hit the brick
-	// horizontally - otherwise, the ball hit the brick vertically	
+	// horizontally - otherwise, the ball hit the brick vertically.
 
 	// Then, upon our assumptions, we change either the X or Y velocity
-	// of the ball, creating a "realistic" response for the collision
+	// of the ball, creating a "realistic" response for the collision.
 	if(abs(minOverlapX) < abs(minOverlapY)) 	
 		mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
 	else 												
@@ -179,7 +179,7 @@ int main()
 		testCollision(paddle, ball);
 
 		// We use another C++11 foreach loop to test collisions
-		// between the ball and EVERY brick
+		// between the ball and EVERY brick.
 		for(auto& brick : bricks) testCollision(brick, ball);
 
 		// And we use a STL algorithm to remove all `destroyed` blocks

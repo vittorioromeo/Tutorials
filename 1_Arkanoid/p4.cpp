@@ -28,23 +28,23 @@ struct Ball
 	{ 
 		shape.move(velocity); 
 		
-		// We need to keep the ball "inside the screen"
+		// We need to keep the ball "inside the screen".
 
 		// If it's leaving toward the left, we need to set
-		// horizontal velocity to a positive value (towards the right)
+		// horizontal velocity to a positive value (towards the right).
 		if(left() < 0) velocity.x = ballVelocity;
 
 		// Otherwise, if it's leaving towards the right, we need to
-		// set horizontal velocity to a negative value (towards the left)
+		// set horizontal velocity to a negative value (towards the left).
 		else if(right() > windowWidth) velocity.x = -ballVelocity;
 
-		// The same idea can be applied for top/bottom collisions
+		// The same idea can be applied for top/bottom collisions.
 		if(top() < 0) velocity.y = ballVelocity;
 		else if(bottom() > windowHeight) velocity.y = -ballVelocity;
 	}
 
 	// We can also create "property" methods to easily
-	// get commonly used values
+	// get commonly used values.
 	float x() 		{ return shape.getPosition().x; }
 	float y() 		{ return shape.getPosition().y; }
 	float left() 	{ return x() - shape.getRadius(); }

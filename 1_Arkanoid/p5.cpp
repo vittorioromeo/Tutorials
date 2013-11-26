@@ -11,7 +11,7 @@ using namespace sf;
 constexpr int windowWidth{800}, windowHeight{600};
 constexpr float	ballRadius{10.f}, ballVelocity{8.f};
 
-// Let's create some constants for the paddle
+// Let's create some constants for the paddle.
 constexpr float paddleWidth{60.f}, paddleHeight{20.f}, paddleVelocity{6.f};
 
 struct Ball
@@ -46,17 +46,17 @@ struct Ball
 	float bottom() 	{ return y() + shape.getRadius(); }
 };
 
-// Let's create a `Paddle` class, similar to `Ball`
+// Let's create a `Paddle` class, similar to `Ball`.
 struct Paddle
 {
 	// RectangleShape is an SFML class that defines
-	// a renderable rectangular shape
+	// a renderable rectangular shape.
 	RectangleShape shape;
 	Vector2f velocity;
 
 	// As with the ball, we construct the paddle with
 	// arguments for initial position and pass the values
-	// to the SFML `shape`
+	// to the SFML `shape`.
 	Paddle(float mX, float mY) 
 	{ 
 		shape.setPosition(mX, mY);
@@ -70,16 +70,16 @@ struct Paddle
 		shape.move(velocity); 		
 
 		// To move the paddle, we check if the user is pressing
-		// the left or right arrow key: if so, we change the velocity		
+		// the left or right arrow key: if so, we change the velocity.		
 
 		// To keep the paddle "inside the window", we change the velocity
-		// only if its position is inside the window
+		// only if its position is inside the window.
 		if(Keyboard::isKeyPressed(Keyboard::Key::Left) 
 			&& left() > 0) velocity.x = -paddleVelocity;
 		else if(Keyboard::isKeyPressed(Keyboard::Key::Right) 
 			&& right() < windowWidth) velocity.x = paddleVelocity;
 
-		// If the user isn't pressing anything, stop moving
+		// If the user isn't pressing anything, stop moving.
 		else velocity.x = 0;
 	}	
 
@@ -114,7 +114,7 @@ int main()
 
 		window.draw(ball.shape);
 
-		// ...and draw its shape on the window
+		// ...and draw its shape on the window.
  		window.draw(paddle.shape);
 		window.display();
 	}	

@@ -12,7 +12,7 @@ constexpr int windowWidth{800}, windowHeight{600};
 constexpr float	ballRadius{10.f}, ballVelocity{8.f};
 constexpr float paddleWidth{60.f}, paddleHeight{20.f}, paddleVelocity{6.f};
 
-// Let's define some constants for the bricks
+// Let's define some constants for the bricks.
 constexpr float blockWidth{60.f}, blockHeight{20.f};
 constexpr int countBlocksX{11}, countBlocksY{4};
 
@@ -80,16 +80,16 @@ struct Paddle
 	float bottom() 	{ return y() + shape.getSize().y / 2.f; }
 };
 
-// Let's have a class `Brick` for the bricks
+// Let's have a class `Brick` for the bricks.
 struct Brick
 {
 	RectangleShape shape;
 
 	// This boolean value will be used to check
-	// whether a brick has been hit or not
+	// whether a brick has been hit or not.
 	bool destroyed{false};
 
-	// The constructor is almost identical to the `Paddle` one
+	// The constructor is almost identical to the `Paddle` one.
 	Brick(float mX, float mY) 
 	{ 
 		shape.setPosition(mX, mY);
@@ -129,11 +129,11 @@ int main()
 	Paddle paddle{windowWidth / 2, windowHeight - 50};
 	
 	// We will use an `std::vector` to contain any number
-	// of `Brick` instances
+	// of `Brick` instances.
 	vector<Brick> bricks;
 
 	// We fill up our vector via a 2D for loop, creating 
-	// bricks in a grid-like pattern
+	// bricks in a grid-like pattern.
 	for(int iX{0}; iX < countBlocksX; ++iX)	
 		for(int iY{0}; iY < countBlocksY; ++iY)		
 			bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, 
@@ -157,7 +157,7 @@ int main()
 
 		// We must draw every brick on the window!
 		// Let's use a modern C++11 foreach loop, that allows
-		// us to intuitively say: "draw every `brick` in `bricks`"	
+		// us to intuitively say: "draw every `brick` in `bricks`".
 		for(auto& brick : bricks) window.draw(brick.shape);
 		window.display();
 	}	

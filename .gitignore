@@ -11,6 +11,14 @@
 *.lai
 *.la
 *.a
-/WIP/2_Arkanoid/p1
-/WIP/2_Arkanoid/p2
-/WIP/2_Arkanoid/p3
+
+/WIP/*/p1
+/WIP/*/p2
+/WIP/*/p3
+/WIP/*/p4
+/WIP/*/p5
+/WIP/*/p6
+/WIP/*/p7
+/WIP/*/p8
+/WIP/*/p9
+/WIP/*/p10

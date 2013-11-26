@@ -77,24 +77,24 @@ struct Paddle
 };
 
 // Dealing with collisions: let's define a generic function
-// to check if two shapes are intersecting (colliding)
+// to check if two shapes are intersecting (colliding).
 template<class T1, class T2> bool isIntersecting(T1& mA, T2& mB)
 {
 	return 	mA.right() >= mB.left() && mA.left() <= mB.right() 
 			&& mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
 }
 
-// Let's define a function that deals with paddle/ball collision
+// Let's define a function that deals with paddle/ball collision.
 void testCollision(Paddle& mPaddle, Ball& mBall)
 {
-	// If there's no intersection, get out of the function
+	// If there's no intersection, get out of the function.
 	if(!isIntersecting(mPaddle, mBall)) return;
 
-	// Otherwise let's "push" the ball upwards
+	// Otherwise let's "push" the ball upwards.
 	mBall.velocity.y = -ballVelocity;
 
 	// And let's direct it dependently on the position where the
-	// paddle was hit
+	// paddle was hit.
 	if(mBall.x() < mPaddle.x()) mBall.velocity.x = -ballVelocity;
 	else mBall.velocity.x = ballVelocity;
 }
@@ -116,7 +116,7 @@ int main()
 		ball.update();
 		paddle.update();
 
-		// let's test the collision every game loop iteration
+		// let's test the collision every game loop iteration.
 		testCollision(paddle, ball);
 
 		window.draw(ball.shape);

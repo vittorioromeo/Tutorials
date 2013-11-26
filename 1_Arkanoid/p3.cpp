@@ -10,14 +10,14 @@ using namespace sf;
 
 constexpr int windowWidth{800}, windowHeight{600};
 
-// Let's create some constants for the Ball class
+// Let's create some constants for the Ball class.
 constexpr float	ballRadius{10.f}, ballVelocity{8.f};
 
 struct Ball
 {
 	CircleShape shape;
 
-	// 2D vector that stores the Ball's velocity
+	// 2D vector that stores the Ball's velocity.
 	Vector2f velocity{-ballVelocity, -ballVelocity};
 
 	Ball(float mX, float mY) 
@@ -29,7 +29,7 @@ struct Ball
 	}	
 
 	// Let's "update" the ball: move its shape
-	// by the current velocity
+	// by the current velocity.
 	void update() { shape.move(velocity); }
 };
 
@@ -46,7 +46,7 @@ int main()
 
 		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
 
-		// Every loop iteration, we need to update the ball
+		// Every loop iteration, we need to update the ball.
 		ball.update();
 
 		window.draw(ball.shape);
