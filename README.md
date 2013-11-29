@@ -11,4 +11,4 @@ Repository for my YouTube tutorials / code snippets
 
 ---
 
-*Used to record:* http://www.maartenbaert.be/simplescreenrecorder/
+*Recorded with:* http://www.maartenbaert.be/simplescreenrecorder/
