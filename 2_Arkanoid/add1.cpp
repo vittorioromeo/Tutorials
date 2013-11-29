@@ -6,7 +6,7 @@
 
 // The `constexpr` keyword can also be applied to functions
 
-// A big restriction (that will be lifted in C++11) is that
+// A big restriction (that will be lifted in C++14) is that
 // `constexpr` functions can only be made of a `return`
 // statement
 
@@ -31,11 +31,11 @@ int main()
 	// getSum(input, 10) will get resolved at run-time
 	// as `input` is not a `constexpr` and it cannot be
 	// known at compile-time
-	std::cout << getSum(input, 10) << std::endl;
+	std::cout << getSum(input, 10, 1) << std::endl;
 
 	// Since `constexpr` is resolved at compile-time,
 	// we can use it, for example, to declare arrays
-	int array[getSum(10, 10)]; // int array[20];
+	int array[getSum(10, 10, 10)]; // int array[30];
 
 	return 0;
 }

@@ -252,7 +252,7 @@ int main()
 // Thanks for watching!
 
 // You can fork/look at the full source code on my GitHub page:
-// the link is available in the video description.
+// http://github.com/SuperV1234/
 
 // Check out my website for more tutorials and to personally
 // get in touch with me.
