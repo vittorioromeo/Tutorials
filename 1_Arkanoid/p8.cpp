@@ -182,8 +182,8 @@ int main()
 		// between the ball and EVERY brick.
 		for(auto& brick : bricks) testCollision(brick, ball);
 
-		// And we use a STL algorithm to remove all `destroyed` blocks
-		// from the block vector - using a cool C++11 lambda!
+		// And we use the "erase-remove idiom" to remove all `destroyed` 
+		// blocks from the block vector - using a cool C++11 lambda!
 		bricks.erase(remove_if(begin(bricks), end(bricks), 
 			[](const Brick& mBrick){ return mBrick.destroyed; }), 
 			end(bricks));
@@ -196,3 +196,7 @@ int main()
 
 	return 0;
 }
+
+// More on the "erase-remove idiom":
+// * http://en.wikipedia.org/wiki/Erase-remove_idiom
+// * http://lazarenko.me/2013/01/14/erasing-vector-the-smart-way/
