@@ -129,7 +129,7 @@ int main()
 	// allocate!
 
 	// Valid, 10 is a compile-time constant. (int literal)
-	int automaticArray1[10];		
+	int automaticArray1[10];
 
 	// `constexpr` is a new C++11 keyword. Watch the earlier "Dive into C++11"
 	// videos for an in-depth explanation.
@@ -273,7 +273,7 @@ int main()
 
 
 // Thank you very much for watching!
-// Hope you found the interesting.
+// Hope you found the tutorial interesting.
 
 // You can fork/look at the full source code on my GitHub page:
 // http://github.com/SuperV1234/

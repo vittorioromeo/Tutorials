@@ -9,14 +9,13 @@
 // Welcome to "Dive into C++11", part 3.
 // http://vittorioromeo.info
 
-// In this tutorial we're gonna take a look at pointers,
-// references, and basic memory management.
+// In this tutorial we're gonna take a look at pointers
+// and basic memory management.
 
 // We're gonna learn:
 // * The difference between objects allocated on the stack 
 //   and on the free-store (heap).
-// * The usage of pointers and references, and
-//   how they differ from one another.
+// * What pointers are and how to use them.
 // * How to manage dynamic memory (objects on the free-store).
 
 // Let's begin with object lifetime (storage).
@@ -102,8 +101,6 @@ int main()
 	// lifetime are allocated/deallocated in a 
 	// LIFO order (last in, first out). 
 
-
-
 	// Let's see an example with nested blocks.
 
 	{
@@ -134,7 +131,7 @@ int main()
 	// `ex1` and `ex3` are now out of scope.
 	// `ex3` is deallocated and destroyed, "DTOR 3" will be printed.
 	// `ex1` is deallocated and destroyed, "DTOR 1" will be printed.
-
+	
 
 	
 	// As said previously, the default storage mode

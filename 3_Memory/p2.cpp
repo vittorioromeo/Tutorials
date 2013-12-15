@@ -78,7 +78,7 @@ int main()
 		// `nestedNumber` "dies" at the end of the block.
 	}
 
-	// Even if we `pointerToNested` seems to point to
+	// Even if `pointerToNested` seems to point to
 	// `nestedNumber`, the truth is that `nestedNumber`
 	// got deallocated and destroyed at the end of its block,
 	// and now `pointerToNested` points to an invalid memory
