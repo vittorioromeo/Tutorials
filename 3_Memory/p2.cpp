@@ -12,7 +12,7 @@
 int main()
 {
 	// In C and C++, we can think of variables as entities
-	// having a type, a name, a value and an address.
+	// having a "type", a "name", a "value" and an "address".
 
 	int i{10};
 	float f{5.f};
@@ -33,9 +33,9 @@ int main()
 	// operator. Getting the address of a variable returns a 
 	// pointer of the type of the variable.
 
-	int* pointerToI{&i};	// `pointerToI` is a "pointer to int" 	(int*)
-	float* pointerToF{&f};	// `pointerToF` is a "pointer to float"	(float*)
-	int* pointerToK{&k};	// `pointerToK` is a "pointer to int" 	(int*)
+	int* 	pointerToI{&i};	// `pointerToI` is a "pointer to int" 	(int*)
+	float* 	pointerToF{&f};	// `pointerToF` is a "pointer to float"	(float*)
+	int* 	pointerToK{&k};	// `pointerToK` is a "pointer to int" 	(int*)
 
 	// A pointer is basically a memory address.
 	// We can access the value contained in that address 

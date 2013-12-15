@@ -14,9 +14,13 @@
 
 int main()
 {
+	// Allocating an object dynamically practically means  
+	// grabbing and using an available piece of the 
+	// "free-store" (available memory storage) at run-time.
+
 	// To allocate an object dynamically, we use the `new`
 	// keyword, which returns the address in which the 
-	// object was allocated. 
+	// object was allocated.
 	int* dynamicNumber{new int{1}};
 
 	// Dynamic deallocation IS NOT AUTOMATIC. `dynamicNumber`
@@ -41,6 +45,10 @@ int main()
 	// when dealing with manual dynamic object management.
 	dynamicNumber = nullptr;
 
+	// Obviously, you could also re-use the pointer to allocate a new
+	// `int` on the free-store, or to point to an existing `int` 
+	// instance.
+
 
 
 	// Let's see a more complex example. We'll use the
@@ -55,24 +63,21 @@ int main()
 
 	{
 		Example* ex1{new Example{1}};
-		Example* ex2;
+		// `ex1` is allocated and constructed, "CTOR 1" will be printed.
 
-		// `ex1` is allocated and constructed,
-		// "CTOR 1" will be printed.
-
-		// `ex2` is currently only a pointer:
-		// it does not point to any dynamically-allocated
-		// object, yet.
+		Example* ex2{nullptr};
+		// `ex2` is currently only a pointer: it does not point 
+		// to any dynamically-allocated object, yet. As before, it is
+		// good practice to use `nullptr` to initialize it.
 
 		{
 			Example* ex3{new Example{3}};
 			ex2 = ex3;
 
-			// `ex3` is allocated and constructed,
-			// "CTOR 3" will be printed.
+			// `ex3` is allocated and constructed, "CTOR 3" will be printed.
 
-			// We also assign `ex2` to `ex3`.
-			// This only assigns the address! 
+			// We also assign `ex2` to `ex3`: this only assigns the address! 
+			
 			// You can read `ex2 = ex3;` as: 
 			// "ex2 and ex3 now point to the same address".
 
@@ -83,16 +88,20 @@ int main()
 		}
 
 		// Uh-oh. Even if we reached the end of the block, "DTOR 3" 
-		// was not printed! This is a clear demonstration that 
-		// dynamically-allocated objects are not deallocated/destroyed
-		// at the end of a block, like automatic-storage variables.
+		// was not printed! And ex3 went out of scope.
+
+		// This is a clear demonstration that dynamically-allocated objects 
+		// are not deallocated/destroyed at the end of a block, 
+		// like automatic-storage variables.
 
 		// Fortunately, `ex2` now points to the same dynamic `Example`
 		// instance `ex3` pointed to in the nested block. We can avoid
 		// a memory leak by calling `delete` on `ex2`.
+		// This will free the memory location that `ex3` was pointing to
+		// before `ex3` went out of scope.
 
 		// We will also delete the other dynamically-allocated
-		// `Example` instance.
+		// `Example` instance, `ex1`.
 
 		delete ex1; // This prints "DTOR 1"!
 		delete ex2; // This prints "DTOR 3"!
@@ -119,10 +128,15 @@ int main()
 	// constant size. The compiler needs to know how much memory to
 	// allocate!
 
-	int automaticArray1[10];		// Valid, 10 is a compile-time constant.
+	// Valid, 10 is a compile-time constant. (int literal)
+	int automaticArray1[10];		
 
+	// `constexpr` is a new C++11 keyword. Watch the earlier "Dive into C++11"
+	// videos for an in-depth explanation.
 	constexpr int arraySize{5 + 5};
-	int automaticArray2[arraySize];	// Valid, `arraySize` is a compile-time constant.
+
+	// Valid, `arraySize` is a compile-time constant. (constexpr)
+	int automaticArray2[arraySize];	
 
 	/*
 	{
@@ -173,62 +187,57 @@ int main()
 
 	// Let's create our own naive "vector", that will only store `int` values.
 
-	class NaiveVector
+	struct NaiveVector
 	{
-		private:
-			// Capacity of the vector. (how many objects it can hold)
-			int capacity{2};	
+		// Capacity of the vector. (how many objects it can hold)
+		int capacity{2};	
 			
-			// Pointer to the dynamically-allocated array.
-			int* ptrToArray{new int[capacity]};
+		// Pointer to the dynamically-allocated array.
+		int* ptrToArray{new int[capacity]};
 
-			// Size of the vector. (how many objects it is currently storing)
-			int size{0};
+		// Size of the vector. (how many objects it is currently storing)
+		int size{0};
 
-		public:
-			void push_back(int mValue)
+		void push_back(int mValue)
+		{
+			// Set the last element to the array to the new value.
+			ptrToArray[size] = mValue;
+
+			// Increase the size: the vector is now storing an additional object.
+			++size;
+
+			// If the current capacity is not enough for the new size, 
+			// we must reallocate the dynamic array with a bigger capacity.
+			// Doubling the capacity sounds good.
+			if(capacity < size)
 			{
-				// Set the last element to the array to the new value.
-				ptrToArray[size] = mValue;
+				std::cout << "Reallocating internal array!" << std::endl;
 
-				// Increase the size: the vector is now storing an additional
-				// object.
-				++size;
+				// We create a dynamically-allocated array with double
+				// the capacity of the previous one.
+				capacity *= 2;
+				int* ptrToNewArray{new int[capacity]};
 
-				// If the current capacity is not enough for the new size, 
-				// we must reallocate the dynamic array with a bigger capacity.
-				// Doubling the capacity sounds good.
-				if(capacity < size)
-				{
-					std::cout << "Reallocating internal array!" << std::endl;
+				// We copy the current values of the vector into the new array.
+				for(int i{0}; i < size; ++i) ptrToNewArray[i] = ptrToArray[i];
 
-					// We create a dynamically-allocated array with double
-					// the capacity of the previous one.
-					capacity *= 2;
-					int* ptrToNewArray{new int[capacity]};
-
-					// We copy the current values of the vector into the new array.
-					for(int i{0}; i < size; ++i) ptrToNewArray[i] = ptrToArray[i];
-
-					// We delete the current array, and set the array pointer 
-					// to the new one.
-					delete[] ptrToArray;
-					ptrToArray = ptrToNewArray;				
-				}
-			}		
-
-			void printValues() 
-			{ 
-				std::cout << std::endl;
-
-				for(int i{0}; i < size; ++i) 
-					std::cout << ptrToArray[i] << ", ";
-
-				std::cout << std::endl << "Size: " << size << std::endl;
-				std::cout << "Capacity: " << capacity << std::endl;
-
-				std::cout << std::endl;
+				// We delete the current array, and set the array pointer 
+				// to the new one.
+				delete[] ptrToArray;
+				ptrToArray = ptrToNewArray;				
 			}
+		}		
+
+		// The `printValues()` method prints information for testing purposes.
+		void printValues() 
+		{ 
+			std::cout << std::endl;
+
+			for(int i{0}; i < size; ++i)  std::cout << ptrToArray[i] << ", ";
+
+			std::cout << std::endl << "Size: " << size << std::endl;
+			std::cout << "Capacity: " << capacity << std::endl << std::endl; 
+		}
 	};
 
 	// Let's test our horrible and naive vector implementation!
@@ -254,3 +263,22 @@ int main()
 	nv.push_back(13);	// Size: 13	|	Capacity: 16
 	nv.printValues();	
 }
+
+// Dynamic memory management can be tedious and error-prone.
+// Thankfully, C++11 offers some new features that make it much
+// easier and safer. We will take a look at those features in
+// the next tutorial, along with "references" and the differences
+// between references and pointers.
+
+
+
+// Thank you very much for watching!
+// Hope you found the interesting.
+
+// You can fork/look at the full source code on my GitHub page:
+// http://github.com/SuperV1234/
+
+// Check out my website for more tutorials and to personally
+// get in touch with me.
+
+// http://vittorioromeo.info

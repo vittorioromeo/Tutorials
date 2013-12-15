@@ -7,8 +7,10 @@
 #include <vector>
 
 // Welcome to "Dive into C++11", part 3.
+// http://vittorioromeo.info
+
 // In this tutorial we're gonna take a look at pointers,
-// references, and memory management in general.
+// references, and basic memory management.
 
 // We're gonna learn:
 // * The difference between objects allocated on the stack 
@@ -16,24 +18,59 @@
 // * The usage of pointers and references, and
 //   how they differ from one another.
 // * How to manage dynamic memory (objects on the free-store).
-// * C++11 smart pointers - what are they, and how to use them?
 
 // Let's begin with object lifetime (storage).
 
 int main()
 {
-	// In C and C++, the default "storage method" is 
-	// automatic storage.
+	// In C and C++, all variables are allocated with a "storage method".
+	// The default method in both languages is "automatic storage".
+
+	// "Automatic storage" and "automatic lifetime" can be used
+	// interchangeably.
 
 	// A variable with automatic lifetime is allocated
 	// at the beginning of a code block and deallocated
 	// at the end of the same block.
 
+	// A code block is a "portion of code" between curly braces.
+
+	{
+		// Hello! I'm a code block.
+	}
+
+
+
 	// When a variable reaches the end of its block, it 
 	// is said to be "out-of-scope".
 
+	{
+		int var;
+		var = 5;
+	}
+
+	// 'var' is now out-of-scope.
+	// var = 5; <-- compile-time error.
+
+
+
 	// Let's create a simple class with a constructor and a
 	// destructor to make automatic storage easier to understand.
+
+	// If you are unfamiliar with classes: roughly, a class is a "type" 
+	// that provides "structure" and "behavior".
+
+	// In this case, the type `Example` provides:
+	// * `id`: an integer member variable
+	// * `Example(int mId)`: a constructor taking an int as an argument
+	// * `~Example()`: a destructor
+
+	// The constructor gets called on variable allocation.
+	// The destructor gets called on variable deallocation.
+
+	// Our constructor and our destructor both print the object's `id`.
+	// This will be very useful to understand when an object gets
+	// allocated or deallocated.
 
 	struct Example 
 	{
@@ -42,26 +79,24 @@ int main()
 		~Example() 					{ std::cout << "DTOR " << id << std::endl; }
 	};
 
+
+
+	// Let's now create some instances of `Example`, and analyze
+	// when they get allocated/deallocated.
+
 	{
 		Example ex1{1};
 		Example ex2{2};
 
-		// `ex1` is allocated and constructed,
-		// "CTOR 1" will be printed.
-
-		// `ex2` is allocated and constructed,
-		// "CTOR 2" will be printed.
+		// `ex1` is allocated and constructed, "CTOR 1" will be printed.
+		// `ex2` is allocated and constructed, "CTOR 2" will be printed.
 
 		// ...we reach the end of the block.	
 	}
 	
-	// `ex2` and `ex1` are now out-of-scope.
-
-	// `ex2` is deallocated and destroyed,
-	// "DTOR 2" will be printed.
-
-	// `ex1` is deallocated and destroyed,
-	// "DTOR 1" will be printed.
+	// `ex2` and `ex1` are now out of scope.
+	// `ex2` is deallocated and destroyed, "DTOR 2" will be printed.
+	// `ex1` is deallocated and destroyed, "DTOR 1" will be printed.
 
 	// As you can see, objects with automatic 
 	// lifetime are allocated/deallocated in a 
@@ -74,38 +109,33 @@ int main()
 	{
 		Example ex1{1};
 		
-		// `ex1` is allocated and constructed,
-		// "CTOR 1" will be printed.
+		// `ex1` is allocated and constructed, "CTOR 1" will be printed.
 
 		{
 			Example ex2{2};
 
-			// `ex2` is allocated and constructed,
-			// "CTOR 2" will be printed.
+			// `ex2` is allocated and constructed, "CTOR 2" will be printed.
 
 			// ...we reach the end of the block.	
 		}
 
-		// `ex2` is deallocated and destroyed,
-		// "DTOR 2" will be printed.
+		// `ex2` is now out of scope.
+		// `ex2` is deallocated and destroyed, "DTOR 2" will be printed.
 
 
 
 		Example ex3{3};
 
-		// `ex3` is allocated and constructed,
-		// "CTOR 3" will be printed.
+		// `ex3` is allocated and constructed, "CTOR 3" will be printed.
 
 		// ...we reach the end of the block.
 	}
 
-	// `ex3` is deallocated and destroyed,
-	// "DTOR 3" will be printed.
+	// `ex1` and `ex3` are now out of scope.
+	// `ex3` is deallocated and destroyed, "DTOR 3" will be printed.
+	// `ex1` is deallocated and destroyed, "DTOR 1" will be printed.
 
-	// `ex1` is deallocated and destroyed,
-	// "DTOR 1" will be printed.
 
-	
 	
 	// As said previously, the default storage mode
 	// in C and C++ is "automatic storage". 
@@ -121,20 +151,20 @@ int main()
 	// This is what happens when the above variables get
 	// allocated and constrcuted:
 
-	//	TOP:	[intNumber	]	[str		]	[vec		]	
-	//			[			]	[intNumber	]	[str		]	
-	//			[			]	[			]	[intNumber	]	
-	//			[			]	[			]	[			]
+	//	0(TOP):	[intNumber	]	[str		]	[vec		]	
+	//	1:		[			]	[intNumber	]	[str		]	
+	//	2:		[			]	[			]	[intNumber	]	
+	//	3:		[			]	[			]	[			]
 
 
 
 	// And this is what happens when they get deallocated
 	// and destroyed:
 
-	//	TOP:	[vec		]	[str		]	[intNumber	]	
-	//			[str		]	[intNumber	]	[			]	
-	//			[intNumber	]	[			]	[			]	
-	//			[			]	[			]	[			]
+	//	0(TOP):	[vec		]	[str		]	[intNumber	]	
+	//	1:		[str		]	[intNumber	]	[			]	
+	//	2:		[intNumber	]	[			]	[			]	
+	//	3:		[			]	[			]	[			]
 
 
 
