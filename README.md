@@ -9,6 +9,8 @@ Repository for my YouTube tutorials / code snippets
 
 * [**Dive into C++11 - [2] - Frametime, FPS, constexpr, uniform initialization**](http://www.youtube.com/watch?v=tPbrWAbzyTE)
 
+* [**Dive into C++11 - [3] - Automatic lifetime, pointers, dynamic allocation**](http://www.youtube.com/watch?v=0TGp0o1KnG8)
+
 ---
 
 *Recorded with:* http://www.maartenbaert.be/simplescreenrecorder/
