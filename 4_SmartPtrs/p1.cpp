@@ -15,9 +15,8 @@
 
 // We're gonna learn:
 // * What smart pointers are, and what problem they solve.
-// * The difference between `unique` and `shared` smart pointers.
 // * How to deal with ownership transfer.
-// * Example use of smart pointers for basic entity management.
+// * The difference between `unique` and `shared` smart pointers.
 
 // I highly reccommend watching part 3 before this video.
 // Let's dive in!
@@ -99,6 +98,9 @@ int main()
 	// issue we were trying to solve with `FreeStoreInt`.
 
 	// All smart pointers are in the `memory` header file.
+	
+	// Let's analyze the simplest (yet, usually most useful) type of
+	// smart pointer: `std::unique_ptr`.
 
 	{
 		// `std::unique_ptr` is a clever well thought-out version
@@ -167,4 +169,9 @@ int main()
 
 	// Also, `std::unique_ptr` should have zero overhead compared to "raw"
 	// owning pointers. So feel free to use it without performance worries! 
+
+	// Let's move on to the next part, and take a look at possible ownership
+	// issues.
+
+	return 0;
 }
