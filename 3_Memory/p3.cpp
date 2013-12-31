@@ -133,7 +133,9 @@ int main()
 
 	// `constexpr` is a new C++11 keyword. Watch the earlier "Dive into C++11"
 	// videos for an in-depth explanation.
-	constexpr int arraySize{5 + 5};
+	// It's also good practice to use `std::size_t` when dealing with indices
+	// or sizes. On most platforms it is an alias for `unsigned int`.
+	constexpr std::size_t arraySize{5 + 5};
 
 	// Valid, `arraySize` is a compile-time constant. (constexpr)
 	int automaticArray2[arraySize];	
@@ -156,7 +158,7 @@ int main()
 	// To allocate an array with a size known only at run-time, we need to
 	// use dynamic allocation.
 
-	int runtimeSize;
+	std::size_t runtimeSize;
 	std::cin >> runtimeSize;
 
 	int* pointerToArray;
@@ -190,13 +192,13 @@ int main()
 	struct NaiveVector
 	{
 		// Capacity of the vector. (how many objects it can hold)
-		int capacity{2};	
+		std::size_t capacity{2};	
 			
 		// Pointer to the dynamically-allocated array.
 		int* ptrToArray{new int[capacity]};
 
 		// Size of the vector. (how many objects it is currently storing)
-		int size{0};
+		std::size_t size{0};
 
 		void push_back(int mValue)
 		{
@@ -209,7 +211,7 @@ int main()
 			// If the current capacity is not enough for the new size, 
 			// we must reallocate the dynamic array with a bigger capacity.
 			// Doubling the capacity sounds good.
-			if(capacity < size)
+			if(size >= capacity)
 			{
 				std::cout << "Reallocating internal array!" << std::endl;
 
@@ -233,7 +235,7 @@ int main()
 		{ 
 			std::cout << std::endl;
 
-			for(int i{0}; i < size; ++i)  std::cout << ptrToArray[i] << ", ";
+			for(int i{0}; i < size; ++i) std::cout << ptrToArray[i] << ", ";
 
 			std::cout << std::endl << "Size: " << size << std::endl;
 			std::cout << "Capacity: " << capacity << std::endl << std::endl; 
