@@ -170,6 +170,9 @@ int main()
 // Let me know what you think in the comments.
 
 
+// Remember to check out:
+// http://herbsutter.com/2013/06/05/gotw-91-solution-smart-pointer-parameters/
+
 
 // Thank you very much for watching!
 // Hope you found the tutorial interesting.

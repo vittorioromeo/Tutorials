@@ -106,4 +106,8 @@ void iHaveToTransferOwnershipWhatNow()
 
 int main() { return 0; }
 
+// Here's a very interesting and well-written article about smart pointers parameters
+// by Herb Sutter. I strongly reccommend you to read it!
+// http://herbsutter.com/2013/06/05/gotw-91-solution-smart-pointer-parameters/
+
 // In the next code segment we'll take a look at shared ownership.
