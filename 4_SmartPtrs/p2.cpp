@@ -34,7 +34,9 @@ void whatShouldIPassByToMaintainOriginalOwnership()
 
 
 
-	// The following code is fine, and I personally use this solution.
+	// The following code is fine, but it only works when the object's
+	// lifetime is managed by `std::unique_ptr`. To make your code more
+	// generic, the third solution is suggested.
 	passByConstRef(resPtr);
 
 	// We're not transferring ownership here, we're just referring to the
@@ -43,9 +45,14 @@ void whatShouldIPassByToMaintainOriginalOwnership()
 
 
 
-	// This is another solution, it works properly, but I still prefer
-	// passing by const reference.
+	// This is the third solution, it works properly, and accepts objects
+	// managed by any kind of smart pointers or allocated on the stack.
 	passByRawPtr(resPtr.get());
+
+	// Herb Sutter actually suggests using T& and T* parameters instead of const 
+	// references to smart pointers. That way, your functions will work with any T, 
+	// regardless of how its lifetime is managed. I strongly suggest to check out 
+	// the article linked at the end of the code segment for more information.
 
 	// Remember: `std::unique_ptr::get()` returns a raw pointer to the
 	// smart pointer's contents.
