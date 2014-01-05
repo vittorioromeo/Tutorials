@@ -3,7 +3,6 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <chrono>
-#include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
 // To prevent behavior and precision from changing with
