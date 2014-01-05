@@ -11,7 +11,7 @@ Repository for my YouTube tutorials / code snippets
 
 * [**Dive into C++11 - [3] - Automatic lifetime, pointers, dynamic allocation**](http://www.youtube.com/watch?v=0TGp0o1KnG8)
 
-* **Dive into C++11 - [4] - Smart pointers** - *Work in progress*
+* [**Dive into C++11 - [4] - Smart pointers**](http://www.youtube.com/watch?v=zMdD-s5_BIY)
 
 ---
 
