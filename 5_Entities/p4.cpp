@@ -5,8 +5,8 @@
 #include <vector>
 #include <memory>
 
-// Now that we understand runtime polymorphism, let's return
-// to our arkanoid clone example.
+// Now that we understand the basics of runtime polymorphism,
+// let's return to our arkanoid clone example.
 
 namespace InheritanceArkanoid
 {
@@ -76,5 +76,35 @@ namespace InheritanceArkanoid
 	// will be much easier with a single container.
 }
 
-// This approach has several drawbacks:
-// TODO
+// This approach, however, has a big drawback: this kind
+// of design ("inheritance") does not allow "composition".
+
+// By composition I mean begin able to create game objects 
+// by putting togheter several small components.
+
+// Using inheritance, you end up with a big inheritance tree
+// that makes sharing data and behavior between objects very 
+// difficult. Here's an example:
+
+/*
+					[ GameElement ]
+					       |      
+	    [ EnemyNPC ]----------------[ FriendlyNPC ]  
+	    	  |							   |
+	 [ EnemyArmoredNPC ]         [ FriendlyArmoredNPC ]		   
+*/
+
+// Wouldn't it be better to have something like this?
+
+/*
+	 Components:
+
+     [ Enemy ]    [ NPC ]    [ Friendly ]    [ Armored ]
+
+
+	 Entities:
+
+     [[ Skeleton ]]	= Enemy + NPC
+     [[ Paladin ]] 	= Friendly + NPC + Armored
+     [[ Player ]] 	= Friendly + Armored
+*/

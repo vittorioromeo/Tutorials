@@ -100,7 +100,7 @@ namespace VeryNaiveArkanoid
 	// Adding another game element would require the developer
 	// to modify the game class itself. 
 
-	// This approach is not scalable, confusing and error-prone.
+	// This approach is confusing, error-prone and not scalable.
 }
 
 // Let's move on, and check out a (possibly) better implementation.
