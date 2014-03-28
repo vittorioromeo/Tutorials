@@ -76,20 +76,20 @@ namespace VeryNaiveArkanoid
 
 		void update(float mFT)
 		{
-			for(auto& b : balls) b->update(mFT);
-			for(auto& nb : normalBricks) nb->update(mFT);
-			for(auto& sb : specialBricks) sb->update(mFT);
-			for(auto& p : paddles) p->update(mFT);
-			for(auto& p : powerups) p->update(mFT);
+			for(auto& b : balls) 			b->update(mFT);
+			for(auto& nb : normalBricks) 	nb->update(mFT);
+			for(auto& sb : specialBricks) 	sb->update(mFT);
+			for(auto& p : paddles) 			p->update(mFT);
+			for(auto& p : powerups) 		p->update(mFT);
 		}
 
 		void draw()
 		{
-			for(auto& b : balls) b->draw();
-			for(auto& nb : normalBricks) nb->draw();
-			for(auto& sb : specialBricks) sb->draw();
-			for(auto& p : paddles) p->draw();
-			for(auto& p : powerups) p->draw();
+			for(auto& b : balls) 			b->draw();
+			for(auto& nb : normalBricks) 	nb->draw();
+			for(auto& sb : specialBricks) 	sb->draw();
+			for(auto& p : paddles) 			p->draw();
+			for(auto& p : powerups) 		p->draw();
 		}
 	};	
 

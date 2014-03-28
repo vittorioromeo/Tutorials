@@ -8,12 +8,22 @@
 // Now that we understand the basics of runtime polymorphism,
 // let's return to our arkanoid clone example.
 
+// We will define a base `GameElement` class, with a virtual
+// update method and a virtual draw method. 
+
+// Game element types will inherit from this class and override
+// the virtual methods to define their own behavior.
+
 namespace InheritanceArkanoid
 {
 	struct GameElement
 	{
 		virtual void update(float mFT) { }
 		virtual void draw() { }
+
+		// As we'll be using this class polymorphically, it requires
+		// a virtual destructor.
+		virtual ~GameElement() { }
 	};
 
 	// Now that we have defined a base class, we can define
@@ -50,7 +60,11 @@ namespace InheritanceArkanoid
 		void draw() override { /* ... */ } 
 	};
 
-	// And here's the new game class:
+	// In the game class we can now store game elements in 
+	// the same container. Even if we'll be storing pointers
+	// to `GameElement`, which is the base class, polymorphism
+	// will make sure the correct overrides will be called for
+	// each game element type.
 
 	struct Game
 	{
@@ -82,9 +96,9 @@ namespace InheritanceArkanoid
 // By composition I mean begin able to create game objects 
 // by putting togheter several small components.
 
-// Using inheritance, you end up with a big inheritance tree
-// that makes sharing data and behavior between objects very 
-// difficult. Here's an example:
+// Using this method you will end up with a big inheritance 
+// tree that makes sharing data and behavior between objects 
+// very difficult. Here's an example:
 
 /*
 					[ GameElement ]
@@ -92,19 +106,39 @@ namespace InheritanceArkanoid
 	    [ EnemyNPC ]----------------[ FriendlyNPC ]  
 	    	  |							   |
 	 [ EnemyArmoredNPC ]         [ FriendlyArmoredNPC ]		   
+	    	  |							   |
+  [ EnemyArmoredNPCWithGun ]  [ FriendlyArmoredNPCWithGun ]	
 */
 
-// Wouldn't it be better to have something like this?
+// As you can see, even though both friendly and enemy NPCs 
+// types may be armored or have a weapon, two separate 
+// inheritance tree branches have to be constructed to allow
+// different combinations.
+
+// This becomes cumbersome very fast, especially when there
+// can be a lot of combinations.
+
+// Wouldn't it be better to separate common behaviors and data 
+// in small components that objects could be made up of?
+
+// Here's an example of a better design:
 
 /*
-	 Components:
+	Components:
+     	[ NPC ]    
+     	[ Enemy ]    
+     	[ Friendly ]    
+     	[ Armored ]
+     	[ WithGun ]
+     	...
 
-     [ Enemy ]    [ NPC ]    [ Friendly ]    [ Armored ]
-
-
-	 Entities:
-
-     [[ Skeleton ]]	= Enemy + NPC
-     [[ Paladin ]] 	= Friendly + NPC + Armored
-     [[ Player ]] 	= Friendly + Armored
+	Entities:
+     	[[ Skeleton ]]	= Enemy + NPC
+     	[[ Paladin ]] 	= Friendly + NPC + Armored + WithGun
+     	[[ Player ]] 	= Friendly + Armored + WithGun
+     	[[ Sniper ]] 	= Enemy + NPC + WithGun
+     	...
 */
+
+// Let's check out a possible implementation in the next
+// code segment.

@@ -39,15 +39,24 @@ int main()
 {
 	// To enable runtime polymorphism, the objects must be
 	// defined as pointers to the base class.
+	
+	// As derived classes may have different sizes from the base
+	// class, it is impossible to allocate them on the stack, since
+	// the compiler does not known the size of the instance until
+	// runtime. It is mandatory to allocate polymorphic objects on
+	// the heap.
 
 	std::unique_ptr<Animal> myDog{new Dog{}};
 	std::unique_ptr<Animal> myCat{new Cat{}};
 
 	/*
-		INCORRECT:
+		// INCORRECT:
 
 		Animal myDog{Dog{}};
 		Animal myCat{Cat{}};
+
+		// This causes a problem called "object slicing".
+		// Polymorphism won't work as expected.
 	*/
 
 	// We use `std::unique_ptr` to make sure the memory
