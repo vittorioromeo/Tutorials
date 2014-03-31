@@ -71,209 +71,73 @@
 
 namespace CompositionArkanoid
 {
-	// Forward-declaration of the `Entity` class.
-	class Entity;
+	// We define a typedef for the component ID type:
+	using ComponentID = std::size_t;
 
-	struct Component
+ 	ComponentID getUniqueComponentID() noexcept
 	{
-		// We begin by defining a base `Component` class.
-		// Game components will inherit from this class.
-		
-		// We will use a pointer to store the component's
-		// entity.
-		Entity* entity;
+		// We store a `static` lastID variable: static means
+		// that every time we call this function it will refer
+		// to the same `lastID` instance.
 
-		// Usually a game component will have:
-		// * Some data
-		// * Update behavior
-		// * Drawing behavior
+		// Basically, calling this function returns an unique ID
+		// every time.
 
-		// Therefore we define two virtual methods that
-		// will be overridden by game component types.
-		virtual void update(float mFT) { }
-		virtual void draw() { }
+		static ComponentID lastID{0u};
+		return lastID++;
+	}
 
-		// As we'll be using this class polymorphically, it requires
-		// a virtual destructor.
-		virtual ~Component() { }
-	};
-
-	class Entity 
+	// Now, some "template magic" comes into play.
+	// We create a function that returns an unique ComponentID based
+	// upon the type passed.
+	template<typename T> ComponentID getComponentTypeID() noexcept
 	{
-		// Next, we define an Entity class. 
-		// It will basically be an aggregate of components,
-		// with some methods that help us update and draw
-		// all of them.
+		// Let's try to understand what happens here...
 
-		private:
-			// We'll keep track of whether the entity is alive or dead
-			// with a boolean and we'll store the components in a private
-			// vector of `std::unique_ptr<Component>`, to allow polymorphism.
-			bool alive{true};
-			std::vector<std::unique_ptr<Component>> components;
+		// Every time we call this function with a specific type `T`,
+		// we are actually calling an instantiation of this template,
+		// with its own unique static `typeID` variable.
 
-		// Now we will define some public methods to update and
-		// draw, to add components and to destroy the entity.
+		// Upon calling this function for the first time with a specific 
+		// type `T1`, `typeID` will be initialized with an unique ID.
+		// Subsequent calls with the same type `T1` will return the 
+		// same ID.
 
-		public:
-			// Updating and drawing simply consists in updating and drawing
-			// all the components.
-			void update(float mFT) 	{ for(auto& c : components) c->update(mFT); }
-			void draw() 			{ for(auto& c : components) c->draw(); }
+		static ComponentID typeID{getUniqueComponentID()};
+		return typeID;
+	}
 
-			// We will also define some methods to control the lifetime
-			// of the entity.
-			bool isAlive() const 	{ return alive; }
-			void destroy() 			{ alive = false; }
-
-			// Now, we'll define a method that allows us to add components
-			// to our entity.
-			// We'll take advantage of C++11 variadic templates and emplacement
-			// to directly construct our components in place.
-			// `T` is the component type. `TArgs` is a parameter pack of 
-			// types used to construct the component.
-			template<typename T, typename... TArgs> 
-			T& addComponent(TArgs&&... mArgs)
-			{
-				// We begin by allocating the component of type `T`
-				// on the heap, by forwarding the passed arguments
-				// to its constructor.
-				T* c(new T(std::forward<TArgs>(mArgs)...));
-
-				// We set the component's entity to the current
-				// instance.
-				c->entity = this;
-
-				// We will wrap the raw pointer into a smart one,
-				// so that we can emplace it into our container and 
-				// to make sure we do not leak any memory.
-				std::unique_ptr<Component> uPtr{c};
-
-				// Now we'll add the smart pointer to our container:
-				// `std::move` is required, as `std::unique_ptr` cannot
-				// be copied.
-				components.emplace_back(std::move(uPtr));
-
-				// ...and we will return a reference to the newly added
-				// component, just in case the user wants to do something
-				// with it.
-				return *c;
-			}	
-	};
-
-	// Even if the `Entity` class may seem complex, conceptually it is
-	// very simple. Just think of an entity as a container for components,
-	// with syntatic sugar methods to quicky update/draw all the components.
-
-	// If `Entity` is an aggregate of components, `Manager` is an aggregate
-	// of entities. Implementation is straightforward, and resembles the one
-	// of `Entity`.
-
-	struct Manager
-	{
-		private:
-			std::vector<std::unique_ptr<Entity>> entities;
-
-		public:
-			void update(float mFT) 	{ for(auto& e : entities) e->update(mFT); }
-			void draw() 			{ for(auto& e : entities) e->draw(); }
-
-			// We will create a `refresh` method that uses STL algorithms to
-			// clean up "dead" entities.
-			void refresh()
-			{
-				entities.erase(
-					std::remove_if(std::begin(entities), std::end(entities), 
-					[](const std::unique_ptr<Entity>& mEntity) 
-					{ 
-						return !mEntity->isAlive(); 
-					}), 
-					std::end(entities));
-
-				// This algorithm closely resembles the one we used in 
-				// the first episode of the series to delete "destroyed"
-				// blocks. Basically, we're going through all entities and
-				// erasing the "dead" ones.
-
-				// We are sure we won't have memory leaks because entities
-				// are wrapped into smart pointers.
-			}
-
-			Entity& addEntity()
-			{				
-				Entity* e(new Entity());
-				std::unique_ptr<Entity> uPtr{e};
-				entities.emplace_back(std::move(uPtr));
-				return *e;
-			}	
-	};
-
-	// Now that we implemented our small (and naive) component-based
-	// entity system, let's test it before going back to our arkanoid
-	// example.
+	// Before applying this code to our component-based entity
+	// system, let's run some tests and see how it works.
 }
 
-// The following example will demonstrate how an entity can be created
-// by putting togheter different components. In this case, we have
-// a `CounterComponent` component which increases an internal `counter`
-// float value every update, and a `KillComponent` that, after being
-// constructed with a reference to a `CounterComponent`, destroys the
-// parent entity when the `counter` float value reaches 100.
+// Let's define some random types:
+struct TypeA { };
+struct TypeB { };
+struct TypeC { };
 
-using namespace CompositionArkanoid;
-
-struct CounterComponent : Component
+int main() 
 {
-	float counter;
-	void update(float mFT) override 
-	{ 
-		counter += mFT;
-		std::cout << counter << std::endl;
-	}
-};
+	using namespace CompositionArkanoid;
 
-struct KillComponent : Component
-{
-	CounterComponent& cCounter;
+	std::cout << "TypeA: " << getComponentTypeID<TypeA>() << std::endl;
+	std::cout << "TypeB: " << getComponentTypeID<TypeB>() << std::endl;
+	std::cout << "TypeC: " << getComponentTypeID<TypeC>() << std::endl;
+	 
+	std::cout << "TypeA: " << getComponentTypeID<TypeA>() << std::endl;
+	std::cout << "TypeA: " << getComponentTypeID<TypeA>() << std::endl;
+	std::cout << "TypeB: " << getComponentTypeID<TypeB>() << std::endl;
+	std::cout << "TypeB: " << getComponentTypeID<TypeB>() << std::endl;
+	std::cout << "TypeC: " << getComponentTypeID<TypeC>() << std::endl;
+	std::cout << "TypeC: " << getComponentTypeID<TypeC>() << std::endl;
 
-	KillComponent(CounterComponent& mCounterComponent) 
-		: cCounter(mCounterComponent) { }
-
-	void update(float mFT) override 
-	{ 
-		if(cCounter.counter >= 100) entity->destroy();
-	}		
-};
-
-int main()
-{
-	Manager manager;
-
-	// We create an entity and get a reference to it:
-	auto& entity(manager.addEntity());
-
-	// We create components:
-	auto& cCounter(entity.addComponent<CounterComponent>());
-	auto& cKill(entity.addComponent<KillComponent>(cCounter));
-
-	// And here we simulate a game loop:
-	for(auto i(0u); i < 1000; ++i) 
-	{
-		manager.refresh();
-		manager.update(1.f);
-		manager.draw();
-	}
+	return 0;
 }
 
-// The above example works, but there is one major issue:
-// `CounterComponent` and `KillComponent` and tightly coupled.
+// Running this code will demonstrate that we always get the same ID 
+// if we call `getComponentTypeID<T>` with the same type `T`.
 
-// We need to figure out an efficient way to check if a certain
-// entity has a certain component type, and, if so, retrieve
-// a reference. 
+// We can, therefore, use the return value of `getComponentTypeID<T>`
+// to set a specific bit in our component bitset. 
 
-// In this way, we can avoid passing a reference in 
-// `KillComponent`'s constructor, and also have a way of 
-// getting/checking components at runtime.
-
-// Let's see what we can do in the next code segment.
+// Let's implement everything into our component-based entity system.
