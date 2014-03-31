@@ -6,34 +6,68 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <bitset>
 
-// To implement our component-based entity system, we need 
-// a `Manager` class that helps us manage components and entities,
-// an `Entity` class that acts as a collection of components,
-// and a `Component` base class from which components will inherit.
+// Let's assume that an entity can only contain only one instance of a 
+// certain component type. Let's also assume every component type has an
+// ID integer number. The first component type will have ID 0, and the 
+// other component types will have ID 1, 2, 3, ..., N.
 
-// We will implement a component-based entity system where
-// components contain not only data, but also logic. 
+// With these assumptions, we can create a sequence of bits that helps us
+// check whether or not an entity has a certain component type.
 
-// This kind of system is easier to implement and it's a good
-// starting point to move away from inheritance-based game design.
-
-// In a future video, I may cover a more flexible and elegant 
-// entity system where components do not contain logic, but only
-// data.
-
-// Here's a simple diagram of our design:
-
-/*
-	[ Manager ]
-		 |             /-[ Component ]
-		 \-[ Entity ]--|
-         |             \-[ Component ]
-		 |
-         |             /-[ Component ]
-		 \-[ Entity ]--|
-                       \-[ Component ]	
+/*  Component bitset:
+    [ 0 0 0 0 0 0 0 1 0 0 1 ]
+                    |     |
+        		    |	  \___ Component Type #0
+                    |
+        		    \___ Component Type #3
 */
+
+// With a simple and efficient "bitwise and", we can check if a certain
+// entity has a component.
+
+// Also, since we assign an ID number to every component type, we can 
+// store components in a linear array so that we can efficiently get 
+// a certain component type from an entity.
+
+/*  Component bitset:
+    [ 0 0 0 0 0 0 0 1 0 0 1 ]
+                    |     |
+        		    |	  \___ Component Type #0
+                    |
+        		    \___ Component Type #3
+
+    Component array:
+    [0] 	= (Component Type #0)*
+    [1] 	= nullptr
+    [2] 	= nullptr
+    [3] 	= (Component Type #3)*
+    [4] 	= nullptr
+    [5] 	= nullptr
+    [6] 	= nullptr
+    [7] 	= nullptr
+    [8] 	= nullptr
+    [9] 	= nullptr
+    [10] 	= nullptr
+    [11] 	= nullptr
+*/
+
+// Therefore, we can easily say:
+//
+// if(entity.hasComponent<ComponentType3>())
+//     entity.getComponent<ComponentType3>().doSomething();
+
+// Let's implement everything we just talked about.
+
+// The first step is figuring out a way to automatically give 
+// component types an unique ID. 
+
+// We don't want to force our user to manually assign an unique ID 
+// to every component. 
+
+// We will use a very simple "template trick" that guarantees an 
+// unique ID every time we call a function with a specific type.
 
 namespace CompositionArkanoid
 {
