@@ -32,8 +32,7 @@ namespace CompositionArkanoid
 	{
 		// We an use a `static_assert` to make sure this function
 		// is only called with types that inherit from `Component`.
-		static_assert(std::is_base_of<Component, T>::value
-			, 
+		static_assert(std::is_base_of<Component, T>::value,
 			"T must inherit from Component");
 
 		static ComponentID typeID{Internal::getUniqueComponentID()};
@@ -52,6 +51,11 @@ namespace CompositionArkanoid
 	struct Component
 	{
 		Entity* entity;
+
+		// Let's add a virtual `init` method to our Component
+		// class that will be called after the component is
+		// added to an entity.
+		virtual void init() { }
 
 		virtual void update(float mFT) { }
 		virtual void draw() { }
@@ -102,6 +106,9 @@ namespace CompositionArkanoid
 				componentArray[getComponentTypeID<T>()] = c;
 				componentBitset[getComponentTypeID<T>()] = true;
 
+				// We can now call `Component::init()`:
+				c->init();
+
 				return *c;
 			}
 
@@ -125,8 +132,6 @@ namespace CompositionArkanoid
 			void update(float mFT) 	{ for(auto& e : entities) e->update(mFT); }
 			void draw() 			{ for(auto& e : entities) e->draw(); }
 
-			// We will create a `refresh` method that uses STL algorithms to
-			// clean up "dead" entities.
 			void refresh()
 			{
 				entities.erase(
@@ -136,14 +141,6 @@ namespace CompositionArkanoid
 						return !mEntity->isAlive(); 
 					}), 
 					std::end(entities));
-
-				// This algorithm closely resembles the one we used in 
-				// the first episode of the series to delete "destroyed"
-				// blocks. Basically, we're going through all entities and
-				// erasing the "dead" ones.
-
-				// We are sure we won't have memory leaks because entities
-				// are wrapped into smart pointers.
 			}
 
 			Entity& addEntity()
@@ -154,18 +151,7 @@ namespace CompositionArkanoid
 				return *e;
 			}	
 	};
-
-	// Now that we implemented our small (and naive) component-based
-	// entity system, let's test it before going back to our arkanoid
-	// example.
 }
-
-// The following example will demonstrate how an entity can be created
-// by putting togheter different components. In this case, we have
-// a `CounterComponent` component which increases an internal `counter`
-// float value every update, and a `KillComponent` that, after being
-// constructed with a reference to a `CounterComponent`, destroys the
-// parent entity when the `counter` float value reaches 100.
 
 using namespace CompositionArkanoid;
 
@@ -181,29 +167,32 @@ struct CounterComponent : Component
 
 struct KillComponent : Component
 {
-	CounterComponent& cCounter;
+	CounterComponent* cCounter{nullptr};
 
-	KillComponent(CounterComponent& mCounterComponent) 
-		: cCounter(mCounterComponent) { }
+	// Instead of passing the entity as a parameter in the constructor,
+	// we can now override the `init()` method and get the counter
+	// component with our new methods.
+	void init() override 
+	{ 
+		cCounter = &entity->getComponent<CounterComponent>();
+	}
 
 	void update(float mFT) override 
 	{ 
-		if(cCounter.counter >= 100) entity->destroy();
+		if(cCounter->counter >= 100) entity->destroy();
 	}		
 };
 
 int main()
 {
 	Manager manager;
-
-	// We create an entity and get a reference to it:
+	
 	auto& entity(manager.addEntity());
 
-	// We create components:
-	auto& cCounter(entity.addComponent<CounterComponent>());
-	auto& cKill(entity.addComponent<KillComponent>(cCounter));
+	// We can now avoid getting references to the components:
+	entity.addComponent<CounterComponent>();
+	entity.addComponent<KillComponent>();
 
-	// And here we simulate a game loop:
 	for(auto i(0u); i < 1000; ++i) 
 	{
 		manager.refresh();
@@ -212,15 +201,18 @@ int main()
 	}
 }
 
-// The above example works, but there is one major issue:
-// `CounterComponent` and `KillComponent` and tightly coupled.
+// This approach, in my opinion, is cleaner and more efficient than
+// the previous one. 
 
-// We need to figure out an efficient way to check if a certain
-// entity has a certain component type, and, if so, retrieve
-// a reference. 
+// We can avoid verbose constructors where we pass a lot of parameters
+// by overriding the `init()` method.
 
-// In this way, we can avoid passing a reference in 
-// `KillComponent`'s constructor, and also have a way of 
-// getting/checking components at runtime.
+// Additionally, we can avoid the `init()` method virtual overhead
+// by using macros and templates, and statically calling it without dynamic
+// dispatch. As this is an often unnecessary complication, I won't cover
+// it in this tutorial, but you can check the implementation out in the
+// SSVEntitySystem repository. 
 
-// Let's see what we can do in the next code segment.
+// For the last code segment, I'll re-implement the arkanoid clone you
+// saw in the first episode of the series using this component-based
+// entity system.
