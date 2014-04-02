@@ -140,18 +140,25 @@ constexpr float blockWidth{60.f}, blockHeight{20.f};
 constexpr int countBlocksX{11}, countBlocksY{4};
 constexpr float ftStep{1.f}, ftSlice{1.f};
 
+struct Game;
+
 struct CPosition : Component
 {
 	Vector2f position;
+
+	float x() const noexcept { return position.x; }
+	float y() const noexcept { return position.y; }
 };
 
 struct CPhysics : Component
 {
 	CPosition* cPosition{nullptr};
-	Vector2f velocity;
+	Vector2f velocity, halfSize;
 
-	std::function<void(float)> onOutOfBounds;
+	std::function<void(const Vector2f&)> onOutOfBounds;
 	std::function<void(CPhysics&)> onCollision;
+
+	CPhysics(const Vector2f& mHalfSize) : halfSize{mHalfSize} { }
 
 	void init() override
 	{	
@@ -162,21 +169,32 @@ struct CPhysics : Component
 	{
 		cPosition.position += velocity * mFT;
 
-		if(left() < 0) velocity.x = ballVelocity;
-		else if(right() > windowWidth) velocity.x = -ballVelocity;
+		if(onOutOfBounds == nullptr) return;
 
-		if(top() < 0) velocity.y = ballVelocity;
-		else if(bottom() > windowHeight) velocity.y = -ballVelocity;
+		if(left() < 0) onOutOfBounds(Vector2f{1.f, 0.f});
+		else if(right() > windowWidth) onOutOfBounds(Vector2f{-1.f, 0.f});
+
+		if(top() < 0) onOutOfBounds(Vector2f{1.f, 0.f});
+		else if(bottom() > windowHeight) onOutOfBounds(Vector2f{-1.f, 0.f});
 	}
+
+	float x() 		const noexcept { return cPosition.x(); }
+	float y() 		const noexcept { return cPosition.y(); }
+	float left() 	const noexcept { return x() - halfSize.x; }
+	float right() 	const noexcept { return x() + halfSize.x; }
+	float top() 	const noexcept { return y() - halfSize.y; }
+	float bottom() 	const noexcept { return y() + halfSize.y; }
 };
 
 struct CRenderCircle
 {
+	Game* game{nullptr};
 	CPosition* cPosition{nullptr};
 	CircleShape shape;
 	float radius;
 
-	CRenderCircle(float mRadius) : radius{mRadius} { }
+	CRenderCircle(Game* mGame, float mRadius) 
+		: game{mGame}, radius{mRadius} { }
 
 	void init() override
 	{	
@@ -194,18 +212,20 @@ struct CRenderCircle
 
 	void draw() override
 	{
-
+		game->render(shape);
 	}
 };
 
 struct CRenderRectangle
 {
+	Game* game{nullptr};
 	CPosition* cPosition{nullptr};
 	RectangleShape shape;
 	Vector2f size;
 	
-	CRenderRectangle(const Vector2f& mSize) : size{mSize} { }
-
+	CRenderRectangle(Game* mGame, const Vector2f& mHalfSize) 
+		: game{mGame}, size{mHalfSize * 2.f} { }
+	
 	void init() override
 	{	
 		cPosition = &entity->getComponent<CPosition>();
@@ -222,65 +242,12 @@ struct CRenderRectangle
 
 	void draw() override
 	{
-
+		game->render(shape);
 	}
-};
-
-struct Ball
-{
-	CircleShape shape;
-	Vector2f velocity{-ballVelocity, -ballVelocity};
-
-	Ball(float mX, float mY) 
-	{
-		shape.setPosition(mX, mY);
-		shape.setRadius(ballRadius);
-		shape.setFillColor(Color::Red);
-		shape.setOrigin(ballRadius, ballRadius);
-	}	
-
-	void update(FrameTime mFT) 
-	{ 
-		shape.move(velocity * mFT); 
-
-		if(left() < 0) velocity.x = ballVelocity;
-		else if(right() > windowWidth) velocity.x = -ballVelocity;
-
-		if(top() < 0) velocity.y = ballVelocity;
-		else if(bottom() > windowHeight) velocity.y = -ballVelocity;
-	}
-
-	float x() 		const noexcept { return shape.getPosition().x; }
-	float y() 		const noexcept { return shape.getPosition().y; }
-	float left() 	const noexcept { return x() - shape.getRadius(); }
-	float right() 	const noexcept { return x() + shape.getRadius(); }
-	float top() 	const noexcept { return y() - shape.getRadius(); }
-	float bottom() 	const noexcept { return y() + shape.getRadius(); }
-};
-
-struct Rectangle
-{
-	RectangleShape shape;
-	float x() 		const noexcept { return shape.getPosition().x; }
-	float y() 		const noexcept { return shape.getPosition().y; }
-	float left() 	const noexcept { return x() - shape.getSize().x / 2.f; }
-	float right() 	const noexcept { return x() + shape.getSize().x / 2.f; }
-	float top() 	const noexcept { return y() - shape.getSize().y / 2.f; }
-	float bottom() 	const noexcept { return y() + shape.getSize().y / 2.f; }
 };
 
 struct Paddle : public Rectangle
 {
-	Vector2f velocity;
-
-	Paddle(float mX, float mY) 
-	{ 
-		shape.setPosition(mX, mY);
-		shape.setSize({paddleWidth, paddleHeight});
-		shape.setFillColor(Color::Red);
-		shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
-	}
-
 	void update(FrameTime mFT) 
 	{ 
 		shape.move(velocity * mFT); 
@@ -291,19 +258,6 @@ struct Paddle : public Rectangle
 			right() < windowWidth) velocity.x = paddleVelocity;
 		else velocity.x = 0;
 	}	
-};
-
-struct Brick : public Rectangle
-{
-	bool destroyed{false};
-
-	Brick(float mX, float mY) 
-	{ 
-		shape.setPosition(mX, mY);
-		shape.setSize({blockWidth, blockHeight});
-		shape.setFillColor(Color::Yellow);
-		shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
-	}
 };
 
 template<class T1, class T2> bool isIntersecting(T1& mA, T2& mB) noexcept
@@ -345,22 +299,50 @@ void testCollision(Brick& mBrick, Ball& mBall) noexcept
 
 struct Game
 {
-	RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 14"};
+	RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - Components"};
 	FrameTime lastFt{0.f}, currentSlice{0.f}; 
 	bool running{false};
+	Manager manager;
 
-	Ball ball{windowWidth / 2, windowHeight / 2};
-	Paddle paddle{windowWidth / 2, windowHeight - 50};
-	vector<Brick> bricks;
+	Entity& createBall()
+	{
+		auto& entity(manager.addEntity());
+		
+		entity.addComponent<CPosition>();
+		entity.addComponent<CPhysics>(Vector2f{ballRadius, ballRadius});
+		entity.addComponent<CRenderCircle>(this, ballRadius);
+
+		auto& cPhysics(entity.getComponent<CPhysics>());
+		cPhysics.velocity = Vector2f{-ballVelocity, -ballVelocity};
+		cPhysics.onOutOfBounds = [&cPhysics](const Vector2f& mSide)
+		{
+			cPhysics.velocity.x = std::abs(cPhysics.velocity.x) * mSide.x;
+			cPhysics.velocity.y = std::abs(cPhysics.velocity.y) * mSide.y;
+		};
+
+		return entity;
+	}
+
+	Entity& createBrick()
+	{
+		Vector2f halfSize{blockWidth / 2.f, blockHeight / 2.f};
+		auto& entity(manager.addEntity());
+		
+		entity.addComponent<CPosition>();
+		entity.addComponent<CPhysics>(halfSize);
+		entity.addComponent<CRenderRectangle>(this, halfSize);
+
+		return entity;
+	}
 
 	Game()
 	{	
 		window.setFramerateLimit(240);
 
 		for(int iX{0}; iX < countBlocksX; ++iX)	
-				for(int iY{0}; iY < countBlocksY; ++iY)		
-					bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, 
-										(iY + 2) * (blockHeight + 3));	
+			for(int iY{0}; iY < countBlocksY; ++iY)		
+				bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, 
+									(iY + 2) * (blockHeight + 3));	
 	}
 
 	void run()
@@ -403,33 +385,19 @@ struct Game
 			}
 		}
 
-		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) 
-			running = false;
+		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) running = false;
 	}
-
 	void updatePhase()
 	{
 		currentSlice += lastFt;
 		for(; currentSlice >= ftSlice; currentSlice -= ftSlice)
-		{		
-			ball.update(ftStep);
-			paddle.update(ftStep);
-
-			testCollision(paddle, ball);
-			for(auto& brick : bricks) testCollision(brick, ball);
-			bricks.erase(remove_if(begin(bricks), end(bricks), 
-				[](const Brick& mBrick){ return mBrick.destroyed; }), 
-				end(bricks));
+		{	
+			manager.refresh();
+			manager.update(ftStep);
 		}
 	}
-
-	void drawPhase()
-	{
-		window.draw(ball.shape);
-		window.draw(paddle.shape);
-		for(auto& brick : bricks) window.draw(brick.shape);
-		window.display();
-	}
+	void drawPhase() { manager.draw(); window.display(); }
+	void render(const Drawable& mDrawable) { window.draw(mDrawable); }
 };
 
 int main() 
