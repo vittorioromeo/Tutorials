@@ -215,4 +215,6 @@ int main()
 
 // For the last code segment, I'll re-implement the arkanoid clone you
 // saw in the first episode of the series using this component-based
-// entity system.
+// entity system. 
+
+// Before that, however, we will add grouping to our entity manager.
