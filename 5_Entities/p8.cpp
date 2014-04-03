@@ -207,6 +207,9 @@ namespace CompositionArkanoid
 	};
 }
 
+// TODO: test and example
+// TODO: finish part 2
+
 using namespace CompositionArkanoid;
 
 struct CounterComponent : Component
