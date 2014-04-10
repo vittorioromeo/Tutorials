@@ -45,8 +45,7 @@ namespace CompositionArkanoid
 		// We begin by defining a base `Component` class.
 		// Game components will inherit from this class.
 		
-		// We will use a pointer to store the component's
-		// entity.
+		// We will use a pointer to store the parent entity.
 		Entity* entity;
 
 		// Usually a game component will have:
@@ -121,7 +120,7 @@ namespace CompositionArkanoid
 				components.emplace_back(std::move(uPtr));
 
 				// ...and we will return a reference to the newly added
-				// component, just in case the user wants to do something
+				// component, in case the user wants to do something
 				// with it.
 				return *c;
 			}	
@@ -129,11 +128,11 @@ namespace CompositionArkanoid
 
 	// Even if the `Entity` class may seem complex, conceptually it is
 	// very simple. Just think of an entity as a container for components,
-	// with syntatic sugar methods to quicky update/draw all the components.
+	// with syntatic sugar methods to quicky add/update/draw components.
 
 	// If `Entity` is an aggregate of components, `Manager` is an aggregate
-	// of entities. Implementation is straightforward, and resembles the one
-	// of `Entity`.
+	// of entities. Implementation is straightforward, and resembles the 
+	// previous one.
 
 	struct Manager
 	{
@@ -141,13 +140,10 @@ namespace CompositionArkanoid
 			std::vector<std::unique_ptr<Entity>> entities;
 
 		public:
-			void update(float mFT) 	{ for(auto& e : entities) e->update(mFT); }
-			void draw() 			{ for(auto& e : entities) e->draw(); }
+			void update(float mFT) 	
+			{ 
+				// We will start by cleaning up "dead" entities.
 
-			// We will create a `refresh` method that uses STL algorithms to
-			// clean up "dead" entities.
-			void refresh()
-			{
 				entities.erase(
 					std::remove_if(std::begin(entities), std::end(entities), 
 					[](const std::unique_ptr<Entity>& mEntity) 
@@ -160,10 +156,14 @@ namespace CompositionArkanoid
 				// the first episode of the series to delete "destroyed"
 				// blocks. Basically, we're going through all entities and
 				// erasing the "dead" ones.
+				// This is known as the "erase-remove idiom".
 
 				// We are sure we won't have memory leaks because entities
 				// are wrapped into smart pointers.
+
+				for(auto& e : entities) e->update(mFT); 
 			}
+			void draw() { for(auto& e : entities) e->draw(); }
 
 			Entity& addEntity()
 			{				
@@ -225,7 +225,6 @@ int main()
 	// And here we simulate a game loop:
 	for(auto i(0u); i < 1000; ++i) 
 	{
-		manager.refresh();
 		manager.update(1.f);
 		manager.draw();
 	}

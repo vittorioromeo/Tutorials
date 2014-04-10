@@ -22,7 +22,9 @@ namespace InheritanceArkanoid
 		virtual void draw() { }
 
 		// As we'll be using this class polymorphically, it requires
-		// a virtual destructor.
+		// a virtual destructor. Even if empty, the virtual destructor
+		// will make sure the right amount of memory is freed when 
+		// a polymorphic instance is destroyed.
 		virtual ~GameElement() { }
 	};
 
@@ -36,13 +38,7 @@ namespace InheritanceArkanoid
 		void draw() override { /* ... */ } 
 	};
 
-	struct NormalBrick : GameElement
-	{ 
-		void update(float mFT) override { /* ... */ } 
-		void draw() override { /* ... */ } 
-	};
-
-	struct SpecialBrick : GameElement
+	struct Brick : GameElement
 	{ 
 		void update(float mFT) override { /* ... */ } 
 		void draw() override { /* ... */ } 
@@ -98,7 +94,8 @@ namespace InheritanceArkanoid
 
 // Using this method you will end up with a big inheritance 
 // tree that makes sharing data and behavior between objects 
-// very difficult. Here's an example:
+// very difficult. Code repetition will be an issue.
+// Here's an example:
 
 /*
 					[ GameElement ]
