@@ -115,7 +115,7 @@ int main()
 		ball.update();
 		paddle.update();
 
-		// let's test the collision every game loop iteration.
+		// Let's test the collision every game loop iteration.
 		testCollision(paddle, ball);
 
 		window.draw(ball.shape);
