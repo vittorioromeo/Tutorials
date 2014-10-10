@@ -57,6 +57,10 @@ int main()
 
 		// This causes a problem called "object slicing".
 		// Polymorphism won't work as expected.
+
+		// Basically, only enough memory for an object of type 
+		// `Animal` is allocated. If derived classes require
+		// additional memory, things won't work as expected.
 	*/
 
 	// We use `std::unique_ptr` to make sure the memory

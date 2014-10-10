@@ -11,7 +11,7 @@
 // In this tutorial we're gonna cover a common game-development
 // topic: entity management.
 
-// I highly reccommend watching part 1 and part 4
+// I highly recommend watching part 1 and part 4
 // before watching this video.
 
 // Let's dive in!
