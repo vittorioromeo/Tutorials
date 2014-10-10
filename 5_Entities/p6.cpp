@@ -74,7 +74,7 @@ namespace CompositionArkanoid
 	// We define a typedef for the component ID type:
 	using ComponentID = std::size_t;
 
- 	ComponentID getUniqueComponentID() noexcept
+	inline ComponentID getUniqueComponentID() noexcept
 	{
 		// We store a `static` lastID variable: static means
 		// that every time we call this function it will refer
@@ -90,7 +90,7 @@ namespace CompositionArkanoid
 	// Now, some "template magic" comes into play.
 	// We create a function that returns an unique ComponentID based
 	// upon the type passed.
-	template<typename T> ComponentID getComponentTypeID() noexcept
+	template<typename T> inline ComponentID getComponentTypeID() noexcept
 	{
 		// Let's try to understand what happens here...
 

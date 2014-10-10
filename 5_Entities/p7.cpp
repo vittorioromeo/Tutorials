@@ -21,14 +21,14 @@ namespace CompositionArkanoid
 	// Let's hide implementation details into an "Internal" namespace:
 	namespace Internal
 	{
-	 	ComponentID getUniqueComponentID() noexcept
+	 	inline ComponentID getUniqueComponentID() noexcept
 		{
 			static ComponentID lastID{0u};
 			return lastID++;
 		}
 	}
 
-	template<typename T> ComponentID getComponentTypeID() noexcept
+	template<typename T> inline ComponentID getComponentTypeID() noexcept
 	{
 		// We an use a `static_assert` to make sure this function
 		// is only called with types that inherit from `Component`.

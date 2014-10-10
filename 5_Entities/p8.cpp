@@ -18,6 +18,7 @@ namespace CompositionArkanoid
 {
 	struct Component;
 	class Entity;
+	class Manager;
 
 	using ComponentID = std::size_t;
 
@@ -26,14 +27,14 @@ namespace CompositionArkanoid
 
 	namespace Internal
 	{
-	 	ComponentID getUniqueComponentID() noexcept
+		inline ComponentID getUniqueComponentID() noexcept
 		{
 			static ComponentID lastID{0u};
 			return lastID++;
 		}
 	}
 
-	template<typename T> ComponentID getComponentTypeID() noexcept
+	template<typename T> inline ComponentID getComponentTypeID() noexcept
 	{
 		static_assert(std::is_base_of<Component, T>::value,
 			"T must inherit from Component");
@@ -99,12 +100,11 @@ namespace CompositionArkanoid
 			// To add/remove group we define some methods that alter
 			// the bitset and tell the manager what we're doing,
 			// so that the manager can internally store this entity 
-			// in its grouped containers.
-			void addGroup(Group mGroup) noexcept 
-			{ 
-				groupBitset[mGroup] = true; 
-				manager.addToGroup(this, mGroup);
-			}
+			// in its grouped containers. 
+			// We'll need to define this method after the definition
+			// of `Manager`, as we're gonna call `Manager::addtoGroup`
+			// here.
+			void addGroup(Group mGroup) noexcept;
 			void delGroup(Group mGroup) noexcept 
 			{ 
 				groupBitset[mGroup] = false; 
@@ -181,7 +181,7 @@ namespace CompositionArkanoid
 
 					v.erase(
 						std::remove_if(std::begin(v), std::end(v), 
-						[](const std::unique_ptr<Entity>& mEntity) 
+						[i](Entity* mEntity) 
 						{ 
 							return !mEntity->isAlive() || !mEntity->hasGroup(i); 
 						}), 
@@ -205,6 +205,13 @@ namespace CompositionArkanoid
 				return *e;
 			}	
 	};
+
+	// Here's the definition of `Entity::addToGroup`:
+	void Entity::addGroup(Group mGroup) noexcept
+	{ 
+		groupBitset[mGroup] = true; 
+		manager.addToGroup(this, mGroup);
+	}
 }
 
 // TODO: test and example
