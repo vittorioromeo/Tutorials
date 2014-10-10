@@ -25,10 +25,11 @@
 // Here's a simple diagram of our design:
 
 /*
-	[ Manager ]
-		 |             /-[ Component ]
-		 \-[ Entity ]--|
-         |             \-[ Component ]
+                                          
+	[ Manager ]                          /-`update()`
+		 |             /-[ Component ]---|
+		 \-[ Entity ]--|                 \-`draw()`
+         |             \-[ Component ]    
 		 |
          |             /-[ Component ]
 		 \-[ Entity ]--|
@@ -46,7 +47,7 @@ namespace CompositionArkanoid
 		// Game components will inherit from this class.
 		
 		// We will use a pointer to store the parent entity.
-		Entity* entity;
+		Entity* entity{nullptr};
 
 		// Usually a game component will have:
 		// * Some data
