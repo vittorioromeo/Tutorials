@@ -25,7 +25,7 @@
 // widgets can be entities. 
 // 1. We need to be able to keep track of particular instances of 
 // these objects.
-// 2. We need to iterate and perform action on all of these objects.
+// 2. We need to iterate and perform actions on all of these objects.
 
 // What is the easiest/best way to solve the first problem?
 // Allocate entities dynamically. Objects on the heap are very

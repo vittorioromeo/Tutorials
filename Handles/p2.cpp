@@ -20,6 +20,9 @@ using HCtr = int;
 // We'll use templates this time, to make the code more generic.
 template<typename> class Manager;
 
+// Here I'll show you the data structures and algorithms I
+// created to solve the previously mentioned problems.
+
 // We'll use "atoms" and "marks" to solve all the issues.
 // Atoms provide storage for entities. Marks help us keep
 // track of entities and validate handles.
@@ -176,7 +179,7 @@ template<typename T> class Handle
        `h->ctr` MUST MATCH `manager.marks[h->markIdx].ctr`.
        If the counter doesn't match, it means that entity is dead or
        that the entity was replaced by a newer one.
-    2. If the handle is valid, we simply follow the pointer mark:
+    2. If the handle is valid, we simply follow the pointed mark:
         `manager.atoms[manager.marks[h->markIdx].atomIdx] is the atom
         we're looking for.
 
@@ -387,13 +390,13 @@ template<typename T> class Manager
             }
         }
 
-        // Sets the status of the atom pointed by the mark at mMarkIdx to dead.
+        // Sets the status of the atom pointed by the mark at `mMarkIdx` to dead.
         void destroy(HIdx mMarkIdx) noexcept
         {
             getAtomFromMark(marks[mMarkIdx]).setDead();
         }
 
-        // Returns a reference to mAtom's controller mark.
+        // Returns a reference to `mAtom`'s controller mark.
         auto& getMarkFromAtom(const Atom<T>& mAtom) noexcept 
         { 
             return marks[mAtom.markIdx]; 
