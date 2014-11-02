@@ -1,7 +1,7 @@
 // Copyright (c) 2013-2014 Vittorio Romeo
-// License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
 // http://vittorioromeo.info | vittorio.romeo@outlook.com
+// License: Academic Free License ("AFL") v. 3.0
+//          http://opensource.org/licenses/AFL-3.0
 
 #include <iostream>
 #include <random>
@@ -21,8 +21,9 @@
 // * Can be either be alive or dead
 // * Rarely used on its own - we usually deal with many entities
 
-// So, all of our game objects can be "entities". All of our UI
-// widgets can be entities. 
+// For instance, all of our game objects can be "entities".
+// All of our UI widgets can be "entities". 
+// In general:
 // 1. We need to be able to keep track of particular instances of 
 // these objects.
 // 2. We need to iterate and perform actions on all of these objects.
@@ -169,7 +170,8 @@ int main()
 // This method allows us to iterate and keep track of entities.
 // However, it has some huge issues:
 // * It's inefficient. Entity iteration is cache-unfriendly.
-// * Handles get invalidated when the entity's memory is freed.
+// * Handles point to deleted memory when the entity is "killed".
+//   We have to invalidate handles ourselves.
 // * We need to keep track of "newly" created entities in a separate
 //   storage.
 

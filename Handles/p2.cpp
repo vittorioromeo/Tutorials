@@ -1,7 +1,7 @@
 // Copyright (c) 2013-2014 Vittorio Romeo
-// License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
 // http://vittorioromeo.info | vittorio.romeo@outlook.com
+// License: Academic Free License ("AFL") v. 3.0
+//          http://opensource.org/licenses/AFL-3.0
 
 #include <iostream>
 #include <random>
@@ -49,17 +49,21 @@ template<typename T> class Atom
 
     public:
         // The atom will be constructed with the corresponding mark index.
-        Atom(HIdx mMarkIdx) : markIdx{mMarkIdx} { }
+        Atom(HIdx mMarkIdx) noexcept : markIdx{mMarkIdx} { }
 
         // Initializes the `data` storage by constructing
         // a `T` instance in it using placement new.
         template<typename... TArgs> void init(TArgs&&... mArgs)
+            noexcept(std::is_nothrow_constructible<T>())
         {
             new (&data) T(std::forward<TArgs>(mArgs)...);
         }
 
         // Deinitializes the stored object by calling its destructor.
-        void deinit() { get().~T(); }
+        void deinit() noexcept(std::is_nothrow_destructible<T>())
+        { 
+            get().~T(); 
+        }
 
         // Gets the contents of the `data` storage as `T`.
         T& get() noexcept             { return reinterpret_cast<T&>(data); }
@@ -67,11 +71,12 @@ template<typename T> class Atom
 
         // We'll also want to retrieve the atom an entity is stored into from
         // the entity itself.
+        // More information on this approach:
+        // http://stackoverflow.com/questions/21909837/
         static Atom* getAtomFromData(T* mData) noexcept
         {
-            return const_cast<Atom*>(reinterpret_cast<const Atom<T>*>(
-                reinterpret_cast<const char*>(mData) - offsetof(Atom<T>, data)
-            ));
+            auto base(reinterpret_cast<char*>(mData) - offsetof(Atom<T>, data));
+            return reinterpret_cast<Atom<T>*>(base);                    
         }
 
         // This will be called from the entity, using `getAtomFromData`.
@@ -88,7 +93,7 @@ struct Mark
     HCtr ctr;
 
     // The mark will be constructed with the corresponding atom index.
-    Mark(HIdx mAtomIdx) : atomIdx{mAtomIdx} { }
+    Mark(HIdx mAtomIdx) noexcept : atomIdx{mAtomIdx} { }
 };
 
 // The user will keep track of entities through `Handle` objects.
@@ -330,6 +335,9 @@ template<typename T> class Handle
     take the newly added entities into account. They will either be put in
     place of dead entities, or `size` will simply be increased to match 
     `sizeNext`.
+
+    Diagrams and more information:
+    http://codereview.stackexchange.com/questions/67524/
 */
 
 // Let's implement everything!
@@ -447,52 +455,54 @@ template<typename T> class Manager
 
         void refresh()
         {
-            // Type must be signed, to check with negative values later.
-            int iDead{0};
-
-            // Convert sizeNext to `int` for future comparisons.
+            // Convert `sizeNext` to a signed integer to avoid comparison
+            // issues later on.
             const int intSizeNext(sizeNext);
 
-            // Find first alive and first dead atoms.
-            while(iDead < intSizeNext && atoms[iDead].alive) ++iDead;
-            int iAlive{iDead - 1};
+            // This is our "left -> right" pointer that looks for dead 
+            // entities.
+            int iD{0};
 
-            for(int iD{iDead}; iD < intSizeNext; ++iD)
+            // This is our "right -> left" pointer that looks for alive
+            // entities.
+            int iA{intSizeNext - 1};
+
+            do
             {
-                // Skip alive atoms.
-                if(atoms[iD].alive) continue;
-
-                // Found a dead atom - `i` now stores its index.
-                // Look for an alive atom after the dead atom.
-                for(int iA{iDead + 1}; true; ++iA)
+                // Find dead item from left...
+                for(; true; ++iD)
                 {
-                    // No more alive atoms, continue.
-                    if(iA == intSizeNext) goto finishRefresh;
-
-                    // Skip dead atoms.
-                    if(!atoms[iA].alive) continue;
-
-                    // Found an alive atom after dead `iD` atom: 
-                    // swap and update mark.
-                    std::swap(atoms[iA], atoms[iD]);
-                    getMarkFromAtom(atoms[iD]).atomIdx = iD;
-                    iAlive = iD; iDead = iA;
-
-                    break;
+                    // No more dead items.
+                    if(iD > iA) goto finishRefresh;
+                    if(!atoms[iD].alive) break;
                 }
+
+                // Find alive item from right...
+                for(; true; --iA)
+                {
+                    // No more alive items.
+                    if(iA <= iD) goto finishRefresh;
+                    if(atoms[iA].alive) break;
+                }
+                
+                std::swap(atoms[iD], atoms[iA]);
+                getMarkFromAtom(atoms[iD]).atomIdx = iD;
+
+                // Move both iterators.
+                ++iD; --iA;
             }
+            while(true);
 
             finishRefresh:
 
-            // [iAlive + 1, intSizeNext) contains only dead atoms, clean them up.
-            for(int iD{iAlive + 1}; iD < intSizeNext; ++iD)
+            size = sizeNext = iD;
+
+            // `intSizeNext` still holds the original value.
+            for(; iD < intSizeNext; ++iD)
             {
                 atoms[iD].deinit();
                 ++(getMarkFromAtom(atoms[iD]).ctr);
             }
-
-            // Update size.
-            size = sizeNext = iAlive + 1; 
         }
 
         // Creates an atom, returning an handle pointing to it.
