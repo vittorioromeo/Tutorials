@@ -398,7 +398,8 @@ template<typename T> class Manager
             }
         }
 
-        // Sets the status of the atom pointed by the mark at `mMarkIdx` to dead.
+        // Sets the status of the atom pointed by the mark at `mMarkIdx` 
+        // to dead.
         void destroy(HIdx mMarkIdx) noexcept
         {
             getAtomFromMark(marks[mMarkIdx]).setDead();

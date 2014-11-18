@@ -11,8 +11,8 @@
 // Hello everyone!
 // Today we'll learn about entity storage and handles.
 
-// In game development and many other applications it's common to 
-// have "entity"-like classes. 
+// In games and many other applications it's common to 
+// deal with "entity"-like classes. 
 
 // What defines an "entity"? Personally, I think:
 // * Stores data and/or logic
@@ -24,19 +24,22 @@
 // For instance, all of our game objects can be "entities".
 // All of our UI widgets can be "entities". 
 // In general:
-// 1. We need to be able to keep track of particular instances of 
-// these objects.
-// 2. We need to iterate and perform actions on all of these objects.
+// 1. We need to be able to keep track of particular instances 
+//    of these objects.
+// 2. We need to iterate and perform actions on all of these 
+//    objects at once.
 
 // What is the easiest/best way to solve the first problem?
+// --------------------------------------------------------
 // Allocate entities dynamically. Objects on the heap are very
 // easy to keep track of. Just pass a pointer around - it will
 // always point to the correct instance until the entity is 
 // destroyed.
-// We can create an `std::vector` of dynamically allocated entities
-// and not worry about pointers being invalidated.
+// We can create an `std::vector` of dynamically allocated
+// entities and not worry about pointers being invalidated.
 
 // What is the easiest/best way to solve the second problem?
+// ---------------------------------------------------------
 // Store entities contiguously. Having entities laid out in memory
 // in a cache-friendly way greatly improves iteration efficiency.
 // Unfortunately, if we store entities contiguously, keeping track
@@ -75,9 +78,9 @@ struct Entity
 // It will help us deal with entity creation, destruction,
 // and iteration.
 // The `Manager` will have two "main" user-called methods:
-// 1. `update()`: iterates over all entities and updates them.
-// 2. `refresh()`: destroys all "dead" entities and adds all "new"
-//                 entities to the main container.
+// * `update`: iterates over all entities and updates them.
+// * `refresh`: destroys all "dead" entities and adds all "new"
+//              entities to the main container.
 class Manager
 {
     public:
@@ -105,12 +108,13 @@ class Manager
 
         // Gets rid of all "dead" entities and adds the newly
         // created ones to the main storage.
-        // We add entities in the `refresh()` step and not instantly
-        // as the vector could be resized during update, invalidating
-        // the iterators.
+        // We add entities in the `refresh()` step and not 
+        // instantly as the vector could be resized during
+        // update, invalidating the iterators.
         void refresh()
         {
-            // Destroy all "dead" entities. Memory is automatically freed.
+            // Destroy all "dead" entities. 
+            // Memory is automatically freed.
             entities.erase(
                 std::remove_if(std::begin(entities), std::end(entities),
                 [](const auto& mE){ return !mE->alive; }), 
