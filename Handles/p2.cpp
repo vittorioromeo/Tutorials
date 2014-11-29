@@ -550,6 +550,18 @@ int main()
     if(!h3.isAlive()) std::cout << "h3 invalid\n";  
 }
 
+// This approach is definitely better than the first one, but
+// there are many things to consider:
+// * It only works for non-polymorphic types. You have to know
+//   the size of the stored entity type at compile-time. 
+//   Possible solution: use a tagged-union variant type.
+// * Is storing the status of an entity in the atom the best
+//   approach? Maybe having a separate array with all the
+//   status data would be better (no need for `offsetof`).
+//   However, you wouldn't be able to "kill" an entity directly
+//   from one of its instances, unless you know where it is
+//   stored in the manager.
+
 // Thank you for watching!
 // Hope you found this video interesting.
 

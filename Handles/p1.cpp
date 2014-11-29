@@ -176,10 +176,8 @@ int main()
 // * It's inefficient. Entity iteration is cache-unfriendly.
 // * Handles point to deleted memory when the entity is "killed".
 //   We have to invalidate handles ourselves.
-// * We need to keep track of "newly" created entities in a separate
-//   storage.
 
 // Good news everyone! 
 
-// We can solve all these problems with the next approach.
+// We can solve these problems with the next approach.
 // Unfortunately, the implementation is not as straightforward.
