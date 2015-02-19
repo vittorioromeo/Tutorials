@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2014 Vittorio Romeo
+// Copyright (c) 2013-2015 Vittorio Romeo
 // http://vittorioromeo.info | vittorio.romeo@outlook.com
 // License: Academic Free License ("AFL") v. 3.0
 //          http://opensource.org/licenses/AFL-3.0
