@@ -21,6 +21,12 @@ struct Animal
 	// runtime polymorphism!
 
 	virtual void makeNoise() { }
+
+	// As we'll be using this class polymorphically, it requires
+	// a virtual destructor. Even if empty, the virtual destructor
+	// will make sure the right amount of memory is freed when 
+	// a polymorphic instance is destroyed.
+	virtual ~Animal() { }
 };
 
 // The `<A> : <B>` syntax means that <A> inherits from <B>.
@@ -43,11 +49,8 @@ struct Cat : Animal
 
 int main()
 {
-	// To make sure runtime polymorphism works properly, 
-	// the objects must be defined as pointers to the base class.
-	
-	// As derived classes may have different sizes from the base
-	// class, it is impossible to allocate them on the stack, since
+	// Derived classes may have different sizes from the base
+	// class, so it is impossible to allocate them on the stack, since
 	// the size of the object is not known at compile-time.
 	// It is mandatory to access and interact with polymorphic objects 
 	// through pointers.
@@ -96,14 +99,6 @@ int main()
 		std::unique_ptr<Animal> myDog{new Dog{}};
 		std::unique_ptr<Animal> myCat{new Cat{}};
 
-		/*
-			// If your compiler supports C++14, `std::make_unique` should
-			// be used instead:
-
-			auto myDog(std::make_unique<Dog>());
-			auto myCat(std::make_unique<Cat>());
-		*/
-
 		// We use `std::unique_ptr` to make sure the memory
 		// allocated for the polymorphic object will be freed.
 
@@ -122,6 +117,7 @@ int main()
 
 		std::vector<std::unique_ptr<Animal>> animals;
 
+		std::cout << "Iterating...\n";
 		animals.emplace_back(new Dog{});
 		animals.emplace_back(new Dog{});
 		animals.emplace_back(new Cat{});

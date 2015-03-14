@@ -33,6 +33,7 @@ namespace InheritanceArkanoid
 	{
 		virtual void update(float mFT) { }
 		virtual void draw() { }
+		virtual ~GameElement() { }
 	};
 
 	// The `virtual` keyword is fundamental. Without it, runtime

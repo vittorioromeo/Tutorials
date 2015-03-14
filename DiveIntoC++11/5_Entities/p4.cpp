@@ -20,11 +20,6 @@ namespace InheritanceArkanoid
 	{
 		virtual void update(float mFT) { }
 		virtual void draw() { }
-
-		// As we'll be using this class polymorphically, it requires
-		// a virtual destructor. Even if empty, the virtual destructor
-		// will make sure the right amount of memory is freed when 
-		// a polymorphic instance is destroyed.
 		virtual ~GameElement() { }
 	};
 
