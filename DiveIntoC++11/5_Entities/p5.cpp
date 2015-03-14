@@ -159,16 +159,14 @@ namespace CompositionArkanoid
 				// erasing the "dead" ones.
 				// This is known as the "erase-remove idiom".
 
-				// We are sure we won't have memory leaks because entities
-				// are wrapped into smart pointers.
-
 				for(auto& e : entities) e->update(mFT); 
 			}
+
 			void draw() { for(auto& e : entities) e->draw(); }
 
 			Entity& addEntity()
 			{				
-				Entity* e(new Entity());
+				Entity* e{new Entity{}};
 				std::unique_ptr<Entity> uPtr{e};
 				entities.emplace_back(std::move(uPtr));
 				return *e;

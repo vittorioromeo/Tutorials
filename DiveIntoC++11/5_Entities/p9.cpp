@@ -10,8 +10,13 @@
 #include <array>
 #include <cassert>
 #include <type_traits>
+
+// We will need some additional includes for frametime handling
+// and callbacks.
 #include <chrono>
 #include <functional>
+
+// And we'll use SFML for gfx and input management.
 #include <SFML/Graphics.hpp>
 
 namespace CompositionArkanoid
@@ -21,8 +26,6 @@ namespace CompositionArkanoid
 	class Manager;
 
 	using ComponentID = std::size_t;
-
-	// Let's create a typedef for our group type...
 	using Group = std::size_t;
 
 	namespace Internal
@@ -47,7 +50,6 @@ namespace CompositionArkanoid
 	using ComponentBitset = std::bitset<maxComponents>;
 	using ComponentArray = std::array<Component*, maxComponents>;	
 
-	// ...and one for the bitset.
 	constexpr std::size_t maxGroups{32};
 	using GroupBitset = std::bitset<maxGroups>;
 
@@ -65,7 +67,6 @@ namespace CompositionArkanoid
 	class Entity 
 	{
 		private:
-			// The entity will need a reference to its manager now.
 			Manager& manager;
 
 			bool alive{true};
@@ -73,7 +74,6 @@ namespace CompositionArkanoid
 			ComponentArray componentArray;
 			ComponentBitset componentBitset;
 
-			// Let's add a bitset to our entities.
 			GroupBitset groupBitset;
 
 		public:
@@ -90,28 +90,15 @@ namespace CompositionArkanoid
 				return componentBitset[getComponentTypeID<T>()];
 			}
 
-			// Groups will be handled at runtime, not compile-time:
-			// therefore we will pass groups as a function argument.
 			bool hasGroup(Group mGroup) const noexcept 
 			{ 
-				return componentBitset[mGroup]; 
+				return groupBitset[mGroup]; 
 			}
 
-			// To add/remove group we define some methods that alter
-			// the bitset and tell the manager what we're doing,
-			// so that the manager can internally store this entity 
-			// in its grouped containers. 
-			// We'll need to define this method after the definition
-			// of `Manager`, as we're gonna call `Manager::addtoGroup`
-			// here.
 			void addGroup(Group mGroup) noexcept;
 			void delGroup(Group mGroup) noexcept 
 			{ 
 				groupBitset[mGroup] = false; 
-				// We won't notify the manager that a group has been
-				// removed here, as it will automatically remove 
-				// entities from the "wrong" group containers during
-				// refresh.
 			}
 
 			template<typename T, typename... TArgs> 
@@ -143,29 +130,17 @@ namespace CompositionArkanoid
 	{
 		private:
 			std::vector<std::unique_ptr<Entity>> entities;
-
-			// We store entities in groups by creating "group buckets" in an 
-			// array. `std::vector<Entity*>` could be also replaced for 
-			// `std::set<Entity*>`.
 			std::array<std::vector<Entity*>, maxGroups> groupedEntities;
 
 		public:
 			void update(float mFT) 	{ for(auto& e : entities) e->update(mFT); }
 			void draw() 			{ for(auto& e : entities) e->draw(); }
 
-			// When we add a group to an entity, we just add it to the
-			// correct "group bucket".
 			void addToGroup(Entity* mEntity, Group mGroup)
 			{
-				// It would be wise to either assert that the bucket doesn't
-				// already contain `mEntity`, or use a set to prevent duplicates
-				// in exchange for less efficient insertion/iteration.
-
 				groupedEntities[mGroup].emplace_back(mEntity);
 			}
 
-			// To get entities that belong to a certain group, we can simply
-			// get one of the "buckets" from the array.
 			std::vector<Entity*>& getEntitiesByGroup(Group mGroup)
 			{
 				return groupedEntities[mGroup];
@@ -173,8 +148,6 @@ namespace CompositionArkanoid
 
 			void refresh()
 			{
-				// During refresh, we need to remove dead entities and entities
-				// with incorrect groups from the buckets.
 				for(auto i(0u); i < maxGroups; ++i)
 				{
 					auto& v(groupedEntities[i]);
@@ -206,15 +179,13 @@ namespace CompositionArkanoid
 			}	
 	};
 
-	// Here's the definition of `Entity::addToGroup`:
 	void Entity::addGroup(Group mGroup) noexcept
 	{ 
 		groupBitset[mGroup] = true; 
 		manager.addToGroup(this, mGroup);
 	}
 
-	// TODO:
-	// complete
+	// Let's re-implement our arkanoid clone using components:
 
 	using namespace std;
 	using namespace sf;
@@ -229,6 +200,7 @@ namespace CompositionArkanoid
 
 	struct Game;
 
+	// Entities can have a position in the game world.
 	struct CPosition : Component
 	{
 		Vector2f position;
@@ -240,18 +212,20 @@ namespace CompositionArkanoid
 		float y() const noexcept { return position.y; }
 	};
 
+	// Entities can have a physical body and a velocity.
 	struct CPhysics : Component
 	{
 		CPosition* cPosition{nullptr};
 		Vector2f velocity, halfSize;
 
+		// We will use a callback to handle the "out of bounds" event.
 		std::function<void(const Vector2f&)> onOutOfBounds;
-		std::function<void(CPhysics&)> onCollision;
 
 		CPhysics(const Vector2f& mHalfSize) : halfSize{mHalfSize} { }
 
 		void init() override
 		{	
+			// A requirement for `CPhysics` is obviously `CPosition`.
 			cPosition = &entity->getComponent<CPosition>();
 		}
 
@@ -276,6 +250,7 @@ namespace CompositionArkanoid
 		float bottom() 	const noexcept { return y() + halfSize.y; }
 	};
 
+	// An entity can have a circular shape.
 	struct CCircle : Component
 	{
 		Game* game{nullptr};
@@ -297,11 +272,14 @@ namespace CompositionArkanoid
 
 		void update(float mFT) override
 		{
+			// The shape will automatically get its position from
+			// `CPosition`.
 			shape.setPosition(cPosition->position);
 		}
 		void draw() override;
 	};
 
+	// An entity can have a rectangular shape.
 	struct CRectangle : Component
 	{
 		Game* game{nullptr};
@@ -328,21 +306,19 @@ namespace CompositionArkanoid
 		void draw() override;
 	};
 
+	// The user-controlled paddle needs a special component to handle
+	// keyboard input.
 	struct CPaddleControl : Component
 	{
 		CPhysics* cPhysics{nullptr};
-		//CRectangle* cRectangle{nullptr};
 
 		void init() override
 		{	
 			cPhysics = &entity->getComponent<CPhysics>();
-			//cRectangle = &entity->getComponent<CRectangle>();
 		}
 
 		void update(FrameTime mFT) 
-		{ 
-			//cRectangle->shape.move(cPhysics->velocity * mFT); 
-			
+		{ 			
 			if(Keyboard::isKeyPressed(Keyboard::Key::Left) && 
 				cPhysics->left() > 0) cPhysics->velocity.x = -paddleVelocity;
 			else if(Keyboard::isKeyPressed(Keyboard::Key::Right) && 
@@ -356,25 +332,31 @@ namespace CompositionArkanoid
 		return mA.right() >= mB.left() && mA.left() <= mB.right() 
 				&& mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
 	}
-/*
-	void testCollision(Paddle& mPaddle, Ball& mBall) noexcept
-	{
-		if(!isIntersecting(mPaddle, mBall)) return;
 
-		mBall.velocity.y = -ballVelocity;
-		if(mBall.x() < mPaddle.x()) mBall.velocity.x = -ballVelocity;
-		else mBall.velocity.x = ballVelocity;
+	void testCollisionPB(Entity& mPaddle, Entity& mBall) noexcept
+	{	
+		auto& cpPaddle(mPaddle.getComponent<CPhysics>());
+		auto& cpBall(mBall.getComponent<CPhysics>());
+
+		if(!isIntersecting(cpPaddle, cpBall)) return;
+
+		cpBall.velocity.y = -ballVelocity;
+		if(cpBall.x() < cpPaddle.x()) cpBall.velocity.x = -ballVelocity;
+		else cpBall.velocity.x = ballVelocity;
 	}
 
-	void testCollision(Brick& mBrick, Ball& mBall) noexcept
+	void testCollisionBB(Entity& mBrick, Entity& mBall) noexcept
 	{
-		if(!isIntersecting(mBrick, mBall)) return;
-		mBrick.destroyed = true;
+		auto& cpBrick(mBrick.getComponent<CPhysics>());
+		auto& cpBall(mBall.getComponent<CPhysics>());
 
-		float overlapLeft{mBall.right() - mBrick.left()};
-		float overlapRight{mBrick.right() - mBall.left()};
-		float overlapTop{mBall.bottom() - mBrick.top()};
-		float overlapBottom{mBrick.bottom() - mBall.top()};
+		if(!isIntersecting(cpBrick, cpBall)) return;
+		mBrick.destroy();
+
+		float overlapLeft{cpBall.right() - cpBrick.left()};
+		float overlapRight{cpBrick.right() - cpBall.left()};
+		float overlapTop{cpBall.bottom() - cpBrick.top()};
+		float overlapBottom{cpBrick.bottom() - cpBall.top()};
 
 		bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
 		bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
@@ -383,13 +365,14 @@ namespace CompositionArkanoid
 		float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
 
 		if(abs(minOverlapX) < abs(minOverlapY))
-			mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
+			cpBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
 		else
-			mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;	
+			cpBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;	
 	}
-*/
+
 	struct Game
 	{
+		// We'll use groups to keep track of our entities.
 		enum ArkanoidGroup : std::size_t
 		{
 			GPaddle,
@@ -402,6 +385,7 @@ namespace CompositionArkanoid
 		bool running{false};
 		Manager manager;
 
+		// Creating entities can be done through simple "factory" functions.
 		Entity& createBall()
 		{
 			auto& entity(manager.addEntity());
@@ -414,9 +398,12 @@ namespace CompositionArkanoid
 			cPhysics.velocity = Vector2f{-ballVelocity, -ballVelocity};
 			cPhysics.onOutOfBounds = [&cPhysics](const Vector2f& mSide)
 			{
-				if(mSide.x != 0.f) cPhysics.velocity.x = std::abs(cPhysics.velocity.x) * mSide.x;
-				if(mSide.y != 0.f) cPhysics.velocity.y = std::abs(cPhysics.velocity.y) * mSide.y;
-			};
+				if(mSide.x != 0.f) 
+					cPhysics.velocity.x = std::abs(cPhysics.velocity.x) * mSide.x;
+
+				if(mSide.y != 0.f) 
+					cPhysics.velocity.y = std::abs(cPhysics.velocity.y) * mSide.y;
+			};			
 
 			entity.addGroup(ArkanoidGroup::GBall);
 
@@ -514,6 +501,21 @@ namespace CompositionArkanoid
 			{	
 				manager.refresh();
 				manager.update(ftStep);
+
+				// We get our entities by group...
+				auto& paddles(manager.getEntitiesByGroup(GPaddle));
+				auto& bricks(manager.getEntitiesByGroup(GBrick));
+				auto& balls(manager.getEntitiesByGroup(GBall));
+
+				// ...and perform collision tests on them.
+				for(auto& b : balls)
+				{
+					for(auto& p : paddles)
+						testCollisionPB(*p, *b);
+
+					for(auto& br : bricks)
+						testCollisionBB(*br, *b);
+				}
 			}
 		}
 		void drawPhase() { manager.draw(); window.display(); }

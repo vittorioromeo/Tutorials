@@ -119,7 +119,7 @@ namespace CompositionArkanoid
 
 				assert(hasComponent<T>());
 				auto ptr(componentArray[getComponentTypeID<T>()]);
-				return *reinterpret_cast<T*>(ptr);
+				return *static_cast<T*>(ptr);
 			}
 	};
 
@@ -145,7 +145,7 @@ namespace CompositionArkanoid
 
 			Entity& addEntity()
 			{				
-				Entity* e(new Entity());
+				Entity* e{new Entity{}};
 				std::unique_ptr<Entity> uPtr{e};
 				entities.emplace_back(std::move(uPtr));
 				return *e;
@@ -203,15 +203,6 @@ int main()
 
 // This approach, in my opinion, is cleaner and more efficient than
 // the previous one. 
-
-// We can avoid verbose constructors where we pass a lot of parameters
-// by overriding the `init()` method.
-
-// Additionally, we can avoid the `init()` method virtual overhead
-// by using macros and templates, and statically calling it without dynamic
-// dispatch. As this is an often unnecessary complication, I won't cover
-// it in this tutorial, but you can check the implementation out in the
-// SSVEntitySystem repository. 
 
 // For the last code segment, I'll re-implement the arkanoid clone you
 // saw in the first episode of the series using this component-based

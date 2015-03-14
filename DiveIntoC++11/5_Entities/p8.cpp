@@ -94,7 +94,7 @@ namespace CompositionArkanoid
 			// therefore we will pass groups as a function argument.
 			bool hasGroup(Group mGroup) const noexcept 
 			{ 
-				return componentBitset[mGroup]; 
+				return groupBitset[mGroup]; 
 			}
 
 			// To add/remove group we define some methods that alter
@@ -213,9 +213,6 @@ namespace CompositionArkanoid
 		manager.addToGroup(this, mGroup);
 	}
 }
-
-// TODO: test and example
-// TODO: finish part 2
 
 using namespace CompositionArkanoid;
 

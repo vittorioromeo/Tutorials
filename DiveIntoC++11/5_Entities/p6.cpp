@@ -120,16 +120,16 @@ int main()
 {
 	using namespace CompositionArkanoid;
 
-	std::cout << "TypeA: " << getComponentTypeID<TypeA>() << std::endl;
-	std::cout << "TypeB: " << getComponentTypeID<TypeB>() << std::endl;
-	std::cout << "TypeC: " << getComponentTypeID<TypeC>() << std::endl;
+	std::cout << "TypeA: " << getComponentTypeID<TypeA>() << "\n"
+			  << "TypeB: " << getComponentTypeID<TypeB>() << "\n"
+			  << "TypeC: " << getComponentTypeID<TypeC>() << "\n"
 	 
-	std::cout << "TypeA: " << getComponentTypeID<TypeA>() << std::endl;
-	std::cout << "TypeA: " << getComponentTypeID<TypeA>() << std::endl;
-	std::cout << "TypeB: " << getComponentTypeID<TypeB>() << std::endl;
-	std::cout << "TypeB: " << getComponentTypeID<TypeB>() << std::endl;
-	std::cout << "TypeC: " << getComponentTypeID<TypeC>() << std::endl;
-	std::cout << "TypeC: " << getComponentTypeID<TypeC>() << std::endl;
+			  << "TypeA: " << getComponentTypeID<TypeA>() << "\n"
+			  << "TypeA: " << getComponentTypeID<TypeA>() << "\n"
+			  << "TypeB: " << getComponentTypeID<TypeB>() << "\n"
+			  << "TypeB: " << getComponentTypeID<TypeB>() << "\n"
+			  << "TypeC: " << getComponentTypeID<TypeC>() << "\n"
+			  << "TypeC: " << getComponentTypeID<TypeC>() << std::endl;
 
 	return 0;
 }
