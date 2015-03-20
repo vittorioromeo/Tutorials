@@ -17,7 +17,7 @@ Repository for my YouTube tutorials / code snippets
 
 ---
 
-* [**https://www.youtube.com/watch?v=_-KSlhppzNE**](https://www.youtube.com/watch?v=_-KSlhppzNE)
+* [**Handle-based entity management experiments**](https://www.youtube.com/watch?v=_-KSlhppzNE)
 
 ---
 
