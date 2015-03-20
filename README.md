@@ -13,6 +13,13 @@ Repository for my YouTube tutorials / code snippets
 
 * [**Dive into C++11 - [4] - Smart pointers**](http://www.youtube.com/watch?v=zMdD-s5_BIY)
 
+* [**Dive into C++11 - [5] - Game entity management basics**](https://www.youtube.com/watch?v=QAmtgvwHInM) 
+
 ---
+
+* [**https://www.youtube.com/watch?v=_-KSlhppzNE**](https://www.youtube.com/watch?v=_-KSlhppzNE)
+
+---
+
 
 *Recorded with:* http://www.maartenbaert.be/simplescreenrecorder/
