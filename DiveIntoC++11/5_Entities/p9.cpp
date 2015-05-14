@@ -358,13 +358,13 @@ namespace CompositionArkanoid
 		float overlapTop{cpBall.bottom() - cpBrick.top()};
 		float overlapBottom{cpBrick.bottom() - cpBall.top()};
 
-		bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
-		bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
+		bool ballFromLeft(std::abs(overlapLeft) < std::abs(overlapRight));
+		bool ballFromTop(std::abs(overlapTop) < std::abs(overlapBottom));
 
 		float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
 		float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
 
-		if(abs(minOverlapX) < abs(minOverlapY))
+		if(std::abs(minOverlapX) < std::abs(minOverlapY))
 			cpBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
 		else
 			cpBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;	
