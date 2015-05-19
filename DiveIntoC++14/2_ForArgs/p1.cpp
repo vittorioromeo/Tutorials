@@ -48,6 +48,7 @@ int main()
 		3
 	);
 
+	std::cout << "\n";
 	return 0;
 }
 

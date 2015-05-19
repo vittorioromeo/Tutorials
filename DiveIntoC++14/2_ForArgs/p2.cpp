@@ -94,7 +94,8 @@ int main()
 		2,
 		3
 	);
-
+	
+	std::cout << "\n";
 	return 0;
 }
 

@@ -109,7 +109,7 @@ int main()
 	(
 		[](const auto& x){ std::cout << x << " "; },
 		std::make_tuple(10, "hello", 15.f, 'c')
-	);
+	);	
 
 	// This is roughly equivalent to writing:
 	/*
@@ -131,6 +131,7 @@ int main()
 		std::cout << 'c' << " ";
 	*/
 
+	std::cout << "\n";
 	return 0;
 }
 
@@ -144,4 +145,4 @@ int main()
 // of `forArgs` that takes the arity of the passed callable
 // object as a template parameter.
 
-// TODO:
+// Let's see an implementation of that...
