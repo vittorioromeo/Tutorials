@@ -33,7 +33,7 @@ void forArgs(TF&& mFn, Ts&&... mArgs)
 using Seq0 = std::make_index_sequence<10>;
 
 // To retrieve the numbers in the sequence, we must match it
-// using template specializations.
+// using template specializations and expand it with `...`.
 
 // Let's forward declare a `struct` that will print an index
 // sequence to the standard output.

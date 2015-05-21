@@ -15,9 +15,13 @@ void forArgs(TF&& mFn, Ts&&... mArgs)
 	// Instead of a generic variadic lambda, we can use
 	// an `initializer_list` to create a context where
 	// variadic parameter expansion can take place.
-	// Any "brace-initialized" compile-time container
-	// works, such as any C-style array.
-	// (Examples: `bool[]`, `int[]`)
+
+	// Any "brace-initializable" container works, such as 
+	// any C-style array. (Examples: `bool[]`, `int[]`)
+
+	// This guarantees that the arguments will be 
+	// evaluated in the correct order.
+	
 	return (void) std::initializer_list<int>
 	{
 		// Every element of the `initializer_list` is an

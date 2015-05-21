@@ -15,7 +15,7 @@
 
 // C++14-compliant compilers are becoming more widespread.
 // It is time to leave C++11 behind and move onto the 
-// newest standard of the C++ language.
+// newest standard of the language.
 
 // I'm, therefore, introducing a new YouTube video series,
 // dedicated to C++14.
