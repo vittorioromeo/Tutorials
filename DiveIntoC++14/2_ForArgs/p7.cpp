@@ -8,8 +8,6 @@
 #include <tuple>
 #include <unordered_map>
 
-// WIP, TODO
-
 // We're going to implement a `make_unordered_map` function in
 // this code segment, similar to the previous `make_vector`.
 
@@ -25,7 +23,7 @@ void forNArgs(TF&& mFn, Ts&&... mXs)
 {
 	constexpr auto numberOfArgs(sizeof...(Ts));
 
-	static_assert(numberOfArgs % TArity == 0, 
+	static_assert(numberOfArgs % TArity == 0,
 		"Invalid number of arguments");
 
 	forNArgsImpl
@@ -64,7 +62,7 @@ struct forNArgsImpl
 	{
 		mFn
 		(
-			std::get<TNBase + TNArity>(mXs)... 
+			std::get<TNBase + TNArity>(mXs)...
 		);
 	}
 };
@@ -87,12 +85,12 @@ auto make_unordered_map(TArgs&&... mArgs);
 // to deduce the common type for all keys and the common type
 // for all values of the `std::unordered_map`.
 
-// We're going to use C++11 index sequences to divide the 
+// We're going to use C++11 index sequences to divide the
 // passed parameter pack types in two different packs:
 
 // (types)    K V K V K V K V K V ...
 // (K seq)    0   2   4   6   8   ...
-// (V seq)    1   3   5   7   9 ...
+// (V seq)      1   3   5   7   9 ...
 
 // Let's forward-declare an helper struct that will do
 // that for us. It's gonna take match an `std::index_sequence`
@@ -114,7 +112,7 @@ struct CommonKVHelper
 	// multiple of two.
 	static_assert(sizeof...(Ts) % 2 == 0, "");
 
-	// We need a way to get the type at a specific index from 
+	// We need a way to get the type at a specific index from
 	// a variadic type list. Fortunately, we can make use of
 	// `std::tuple_element_t` to do that.
 
@@ -122,16 +120,16 @@ struct CommonKVHelper
 	// an index and a tuple type. It then "returns" the type
 	// of the tuple element at that specific index.
 
-	// Our `TypeAt` type alias will return the type at index 
+	// Our `TypeAt` type alias will return the type at index
 	// `TI` from the variadic `Ts...` type pack.
-	template<std::size_t TI> 
+	template<std::size_t TI>
 	using TypeAt = std::tuple_element_t<TI, std::tuple<Ts...>>;
 
-	// To get the common type of the keys, we'll expand our 
+	// To get the common type of the keys, we'll expand our
 	// index sequence multiplying every number by two.
 	using KeyType = std::common_type_t<TypeAt<TIs * 2>...>;
 
-	// To get the common type of the values, we'll expand our 
+	// To get the common type of the values, we'll expand our
 	// index sequence multiplying every number by two, adding one.
 	using ValueType = std::common_type_t<TypeAt<(TIs * 2) + 1>...>;
 
@@ -169,17 +167,17 @@ using HelperFor = CommonKVHelper
 // as inputs: one will return the common key type, the other
 // one will return the common value type.
 
-template<typename... Ts> 
+template<typename... Ts>
 using CommonKeyType = typename HelperFor<Ts...>::KeyType;
 
-template<typename... Ts> 
+template<typename... Ts>
 using CommonValueType = typename HelperFor<Ts...>::ValueType;
 
 // Let's use `static_assert` to make sure everything works.
 
 static_assert(std::is_same
 <
-	CommonKeyType<std::string, int>, 
+	CommonKeyType<std::string, int>,
 
 	// Deduced key type:
 	std::string
@@ -187,7 +185,7 @@ static_assert(std::is_same
 
 static_assert(std::is_same
 <
-	CommonValueType<std::string, int>, 
+	CommonValueType<std::string, int>,
 
 	// Deduced value type:
 	int
@@ -197,10 +195,10 @@ static_assert(std::is_same
 <
 	CommonKeyType
 	<
-		std::string, int, 
+		std::string, int,
 		std::string, float,
 		const char*, long
-	>, 
+	>,
 
 	// Deduced key type:
 	std::string
@@ -210,10 +208,10 @@ static_assert(std::is_same
 <
 	CommonValueType
 	<
-		std::string, int, 
+		std::string, int,
 		std::string, float,
 		const char*, long
-	>, 
+	>,
 
 	// Deduced value type:
 	float
@@ -229,30 +227,30 @@ auto make_unordered_map(TArgs&&... mArgs)
 	using KeyType = CommonKeyType<TArgs...>;
 	using ValueType = CommonValueType<TArgs...>;
 
-	// Let's instantiate an `std::unordered_map` with the correct 
+	// Let's instantiate an `std::unordered_map` with the correct
 	// type and reserve memory for the passed elements:
-    std::unordered_map<KeyType, ValueType> result;
-    result.reserve(sizeof...(TArgs) / 2);
+	std::unordered_map<KeyType, ValueType> result;
+	result.reserve(sizeof...(TArgs) / 2);
 
-    // We can now use `forNArgs<2>` to pass elements two by two
-    // to a lambda function that will emplace them as key-value
-    // pairs in the `std::unordered_map`.
+	// We can now use `forNArgs<2>` to pass elements two by two
+	// to a lambda function that will emplace them as key-value
+	// pairs in the `std::unordered_map`.
 
-    forNArgs<2>
-    (
-        [&result](auto&& k, auto&& v)
-        {
-            result.emplace
-            (
-                std::forward<decltype(k)>(k),
-                std::forward<decltype(v)>(v)
-            );
-        },
+	forNArgs<2>
+	(
+		[&result](auto&& k, auto&& v)
+		{
+			result.emplace
+			(
+				std::forward<decltype(k)>(k),
+				std::forward<decltype(v)>(v)
+			);
+		},
 
-        std::forward<TArgs>(mArgs)...
-    );
+		std::forward<TArgs>(mArgs)...
+	);
 
-    return result;
+	return result;
 }
 
 int main()
@@ -260,21 +258,21 @@ int main()
 	using namespace std::literals;
 
 	auto m = make_unordered_map
-    (
-        "zero"s, 0,
-        "one"s, 1,
-        "two", 2.f
-    );
+	(
+		"zero"s, 0,
+		"one"s, 1,
+		"two", 2.f
+	);
 
-    static_assert(std::is_same
-    <
-    	decltype(m),
-    	std::unordered_map<std::string, float>
-    >(), "");
+	static_assert(std::is_same
+	<
+		decltype(m),
+		std::unordered_map<std::string, float>
+	>(), "");
 
 	// Prints "012".
-    std::cout << m["zero"] << m["one"] << m["two"];
+	std::cout << m["zero"] << m["one"] << m["two"];
 
-    std::cout << "\n";
+	std::cout << "\n";
 	return 0;
 }
