@@ -122,9 +122,9 @@ int main()
 			15.f,
 			'c'
 		);
-	*/
-	// ...which, in turn, is roughly equivalent to:
-	/*
+	
+		// ...which, in turn, is roughly equivalent to:
+	
 		std::cout << 10 << " ";
 		std::cout << "hello" << " ";
 		std::cout << "15.f" << " ";

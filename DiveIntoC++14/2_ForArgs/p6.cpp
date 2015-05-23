@@ -236,5 +236,5 @@ int main()
 	return 0;
 }
 
-// Interesting, no? 
+// Interesting, isn't it? 
 // Let's see some possible use cases in the next code segment.

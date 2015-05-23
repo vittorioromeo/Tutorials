@@ -10,9 +10,11 @@
 namespace CPP14LanguageFeatures
 {
 	// Relaxed constexpr restrictions.
-	// * Allows `constexpr` functions to have multiple
-	//   instructions and common language constructs
-	//   such as branches and loops.
+	// 
+	//    * Allows `constexpr` functions to have multiple
+	//      instructions and common language constructs
+	//      such as branches and loops.
+	// 
 
 	constexpr int computeSomething(int mX)
 	{

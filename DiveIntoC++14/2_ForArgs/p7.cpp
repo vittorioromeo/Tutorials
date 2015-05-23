@@ -276,3 +276,14 @@ int main()
 	std::cout << "\n";
 	return 0;
 }
+
+// Thank you for watching this video! 
+// I hope you found the tutorial interesting.
+
+// You can fork/look at the full source code on my GitHub page:
+// http://github.com/SuperV1234/
+
+// Check out my website for more tutorials and to personally
+// get in touch with me.
+
+// http://vittorioromeo.info

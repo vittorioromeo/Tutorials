@@ -10,9 +10,12 @@
 namespace CPP14LanguageFeatures
 {
 	// Generic lambdas.
-	// * Lambda function parameters can now be `auto`.
-	// * This effectively makes the lambda behave like
-	//   a functor with a templated `operator()`.
+	// 
+	//    * Lambda function parameters can now be `auto`.
+	//    
+	//    * This effectively makes the lambda behave like
+	//      a functor with a templated `operator()`.
+	// 
 
 	auto l0([](auto x){ return x * 2; });
 	
@@ -52,8 +55,8 @@ int main()
 	return 0;
 }
 
-// The C++14 standard has a lot more core language features
-// and library additions - these are just some of my favorites!
+// The C++14 standard has more core language features and library 
+// additions - these were just some of my favorites!
 
 // Here are some helpful links to explore what the new standard
 // has to offer:

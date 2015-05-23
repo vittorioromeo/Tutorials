@@ -38,11 +38,17 @@
 
 // Let's take a quick look at some of my favorite new 
 // core language features of the C++14 standard:
-// * Function return type deduction.
-// * `decltype(auto)`.
-// * Relaxed constexpr restrictions.
-// * Variable templates.
-// * Generic lambdas.
+//
+//    * Function return type deduction.
+//
+//    * `decltype(auto)`.
+//
+//    * Relaxed constexpr restrictions.
+//
+//    * Variable templates.
+//
+//    * Generic lambdas.
+//
 
 // If you are familiar with the features listed above,
 // feel free to skip to the next video in the series,
@@ -51,12 +57,16 @@
 namespace CPP14LanguageFeatures
 {
 	// Function return type deduction.
-	// * This feature allows the use of the keyword `auto`
-	//   in place of a function's return type.
-	// * You can qualify the `auto` keyword with `const`,
-	//   `*`, `&`, etc...
-	// * It follows the same rules as `auto` variable 
-	//   type deduction.
+	// 
+	//    * This feature allows the use of the keyword `auto`
+	//      in place of a function's return type.
+	// 
+	//    * You can qualify the `auto` keyword with `const`,
+	//      `*`, `&`, etc...
+	// 
+	//    * It follows the same rules as `auto` variable 
+	//      type deduction.
+	// 
 
 	auto func0()
 	{

@@ -10,11 +10,15 @@
 namespace CPP14LanguageFeatures
 {
 	// `decltype(auto)`
-	// * `auto` will always deduce a non-reference type.
-	// * `auto&&` will always deduce a reference type.
-	// * `decltype(auto)` deduces a non-reference or 
-	//   reference type depending upon the value category
-	//   and the nature of a particular expression.
+	// 
+	//    * `auto` will always deduce a non-reference type.
+	//    
+	//    * `auto&&` will always deduce a reference type.
+	//    
+	//    * `decltype(auto)` deduces a non-reference or 
+	//      reference type depending upon the value category
+	//      and the nature of a particular expression.
+	// 
 
 	auto func3()
 	{

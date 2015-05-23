@@ -25,7 +25,7 @@ void forArgs(TF&& mFn, Ts&&... mArgs)
 // So, what is `forArgs` useful for?
 // Let's see some potential use cases for it.
 
-
+// ----------------------------------------------------------------
 
 // Example use case: `make_vector` function.
 
@@ -36,6 +36,7 @@ template<typename... TArgs>
 auto make_vector(TArgs&&... mArgs)
 {
 	// First problem: what type should we return?
+	
 	// We need to deduce a type suitable for all the
 	// passed arguments.
 
@@ -43,16 +44,17 @@ auto make_vector(TArgs&&... mArgs)
 
 	// Note:
 	//
-	// * C++14 added many versions of commonly used
-	//   type traits functions ending with "_t", that
-	//   do not require the user to write `typename`
-	//   at the beginning and `::type` at the end.
+	//    * C++14 added many versions of commonly used
+	//      type traits functions ending with "_t", that
+	//      do not require the user to write `typename`
+	//      at the beginning and `::type` at the end.
 	//
-	// * C++11:	
-    //   using IntPtr = typename std::add_pointer<int>::type;
+	//    * C++11:	
+    //      using IntPtr = typename std::add_pointer<int>::type;
     //
-    // * C++14:	
-    //   using IntPtr = std::add_pointer_t<int>;
+    //    * C++14:	
+    //      using IntPtr = std::add_pointer_t<int>;
+    // 
 
 	// `std::common_type_t` determines the common type among all 
 	// passed types - that is the type all passed types can be 

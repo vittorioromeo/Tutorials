@@ -12,6 +12,9 @@
 // interesting code snippet, originally posted on Twitter
 // by Sean Parent: <tweet0.png>.
 
+// We'll also cover a very useful C++14 standard library
+// addition: "Compile time integer sequences".
+
 // This tutorial video is a reviewed and improved version
 // of my C++Now 2015 lightning talk:
 
@@ -23,7 +26,7 @@
 // Also, slides from the conference are available here:
 // https://github.com/boostcon/cppnow_presentations_2015
 
-
+// ----------------------------------------------------------------
 
 // So, what does `for_each_argument` do?
 // Well, the name is pretty self-explanatory...

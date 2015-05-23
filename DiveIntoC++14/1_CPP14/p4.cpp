@@ -10,8 +10,11 @@
 namespace CPP14LanguageFeatures
 {
 	// Variable templates.
-	// * C++14 allows the creation of templated variables.
-	// * Variable templates can also be specialized.
+	// 
+	//    * C++14 allows the creation of templated variables.
+	// 
+	//    * Variable templates can also be specialized.
+	// 
 
 	template<typename T> T pi{3.14159265359};
 
