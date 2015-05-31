@@ -13,7 +13,7 @@
 // by Sean Parent: <tweet0.png>.
 
 // We'll also cover a very useful C++14 standard library
-// addition: "Compile time integer sequences".
+// addition: "compile-time integer sequences".
 
 // This tutorial video is a reviewed and improved version
 // of my C++Now 2015 lightning talk:

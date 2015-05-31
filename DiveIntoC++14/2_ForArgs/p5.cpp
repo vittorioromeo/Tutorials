@@ -26,7 +26,7 @@ void forArgs(TF&& mFn, Ts&&... mArgs)
 
 // Positive integer sequences using `std::size_t` as their underlying
 // index type are called "index sequences".
-// They can be generated using `std::make_index_sequence.
+// They can be generated using `std::make_index_sequence`.
 
 // `Seq0` is a compile-time index sequence.
 // It goes from `0` (inclusive) to `10` (non-inclusive).
@@ -35,7 +35,7 @@ using Seq0 = std::make_index_sequence<10>;
 // To retrieve the numbers in the sequence, we must match it
 // using template specializations and expand it with `...`.
 
-// Let's forward declare a `struct` that will print an index
+// Let's forward-declare a `struct` that will print an index
 // sequence to the standard output.
 template<typename> 
 struct SeqPrinter;

@@ -9,14 +9,14 @@
 
 // In this code segment we're going to implement a generic 
 // `forNArgs` function that passes its arguments to a callable
-//  object in groups of `N` arguments, where `N` is divisible 
+// object in groups of `N` arguments, where `N` is divisible 
 // by the number of total arguments.
 
 // The following implementation was written by Daniel Frey.
 
 // It's a very clever implementation that avoids compile-time 
-// recursion (which can dramatically increase compilation time) 
-// that was an answer to one of my questions on StackOverflow:
+// recursion (which can dramatically increase compilation time),
+// written as an answer to one of my questions on StackOverflow:
 // http://stackoverflow.com/questions/29900928
 
 // ----------------------------------------------------------------
@@ -237,4 +237,4 @@ int main()
 }
 
 // Interesting, isn't it? 
-// Let's see some possible use cases in the next code segment.
+// Let's see a possible use case in the next code segment.

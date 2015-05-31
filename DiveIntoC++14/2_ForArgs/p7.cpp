@@ -195,9 +195,10 @@ static_assert(std::is_same
 <
 	CommonKeyType
 	<
-		std::string, int,
-		std::string, float,
-		const char*, long
+		// Keys			// Values
+		std::string, 	int,
+		std::string, 	float,
+		const char*, 	long
 	>,
 
 	// Deduced key type:
@@ -208,9 +209,10 @@ static_assert(std::is_same
 <
 	CommonValueType
 	<
-		std::string, int,
-		std::string, float,
-		const char*, long
+		// Keys			// Values
+		std::string, 	int,
+		std::string, 	float,
+		const char*, 	long
 	>,
 
 	// Deduced value type:

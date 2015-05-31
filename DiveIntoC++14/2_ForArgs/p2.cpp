@@ -17,7 +17,7 @@ void forArgs(TF&& mFn, Ts&&... mArgs)
 	// variadic parameter expansion can take place.
 
 	// Any "brace-initializable" container works, such as 
-	// any C-style array. (Examples: `bool[]`, `int[]`)
+	// C-style arrays. (Examples: `bool[]`, `int[]`)
 
 	// This guarantees that the arguments will be 
 	// evaluated in the correct order.
