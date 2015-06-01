@@ -144,11 +144,11 @@ struct CommonKVHelper
 			TypeAt<2 * 2>  // TypeAt<4>
 		>;
 
-		using KeyType = std::common_type_t
+		using ValueType = std::common_type_t
 		<
 			TypeAt<(0 * 2) + 1>, // TypeAt<1>
-			TypeAt<(1 * 2) + 1>, // TypeAt<2>
-			TypeAt<(2 * 2) + 1>  // TypeAt<3>
+			TypeAt<(1 * 2) + 1>, // TypeAt<3>
+			TypeAt<(2 * 2) + 1>  // TypeAt<5>
 		>;
 	*/
 };
@@ -261,9 +261,9 @@ int main()
 
 	auto m = make_unordered_map
 	(
-		"zero"s, 0,
-		"one"s, 1,
-		"two", 2.f
+		"zero"s, 	0,
+		"one"s, 	1,
+		"two", 		2.f
 	);
 
 	static_assert(std::is_same
