@@ -19,10 +19,16 @@ namespace CPP14LanguageFeatures
 	template<typename T> T pi{3.14159265359};
 
 	void test0()
-	{
-		auto piInt(pi<int>);
+	{	
 		auto piFloat(pi<float>);
 		auto piDouble(pi<double>);
+
+		/*
+			auto piInt(pi<int>);
+			
+			// Will not compile because narrowing `double` to `int`
+			// is not allowed using uniform initialization syntax.
+		*/
 	}	
 
 
