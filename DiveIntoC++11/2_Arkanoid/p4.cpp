@@ -6,7 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 // To prevent behavior and precision from changing with
-// framerate, let's instead use a constant `mFT` value, 
+// framerate, let's instead use a constant `mFT` value,
 // and not call `update(mFT)` on every frame.
 // We will divide our time in different slices:
 
@@ -18,7 +18,7 @@
 // And, every frame, we will call `update(mFT)` "n" times,
 // where "n" is the number of slices we passed through
 // with our last frametime. Example:
- 
+
 //        v-----+frametime---+--v
 // |............|............|............|..........
 // |            |            |            |
@@ -43,7 +43,7 @@ using namespace sf;
 using FrameTime = float;
 
 constexpr int windowWidth{800}, windowHeight{600};
-constexpr float	ballRadius{10.f}, ballVelocity{0.8f};
+constexpr float ballRadius{10.f}, ballVelocity{0.8f};
 constexpr float paddleWidth{60.f}, paddleHeight{20.f}, paddleVelocity{0.6f};
 constexpr float blockWidth{60.f}, blockHeight{20.f};
 constexpr int countBlocksX{11}, countBlocksY{4};
@@ -53,227 +53,240 @@ constexpr float ftStep{1.f}, ftSlice{1.f};
 
 struct Ball
 {
-	CircleShape shape;
-	Vector2f velocity{-ballVelocity, -ballVelocity};
+    CircleShape shape;
+    Vector2f velocity{-ballVelocity, -ballVelocity};
 
-	Ball(float mX, float mY) 
-	{
-		shape.setPosition(mX, mY);
-		shape.setRadius(ballRadius);
-		shape.setFillColor(Color::Red);
-		shape.setOrigin(ballRadius, ballRadius);
-	}	
+    Ball(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setRadius(ballRadius);
+        shape.setFillColor(Color::Red);
+        shape.setOrigin(ballRadius, ballRadius);
+    }
 
-	void update(FrameTime mFT) 
-	{ 
-		shape.move(velocity * mFT); 
+    void update(FrameTime mFT)
+    {
+        shape.move(velocity * mFT);
 
-		if(left() < 0) velocity.x = ballVelocity;
-		else if(right() > windowWidth) velocity.x = -ballVelocity;
+        if(left() < 0)
+            velocity.x = ballVelocity;
+        else if(right() > windowWidth)
+            velocity.x = -ballVelocity;
 
-		if(top() < 0) velocity.y = ballVelocity;
-		else if(bottom() > windowHeight) velocity.y = -ballVelocity;
-	}
+        if(top() < 0)
+            velocity.y = ballVelocity;
+        else if(bottom() > windowHeight)
+            velocity.y = -ballVelocity;
+    }
 
-	float x() 		const noexcept { return shape.getPosition().x; }
-	float y() 		const noexcept { return shape.getPosition().y; }
-	float left() 	const noexcept { return x() - shape.getRadius(); }
-	float right() 	const noexcept { return x() + shape.getRadius(); }
-	float top() 	const noexcept { return y() - shape.getRadius(); }
-	float bottom() 	const noexcept { return y() + shape.getRadius(); }
+    float x() const noexcept { return shape.getPosition().x; }
+    float y() const noexcept { return shape.getPosition().y; }
+    float left() const noexcept { return x() - shape.getRadius(); }
+    float right() const noexcept { return x() + shape.getRadius(); }
+    float top() const noexcept { return y() - shape.getRadius(); }
+    float bottom() const noexcept { return y() + shape.getRadius(); }
 };
 
 struct Rectangle
 {
-	RectangleShape shape;
-	float x() 		const noexcept { return shape.getPosition().x; }
-	float y() 		const noexcept { return shape.getPosition().y; }
-	float left() 	const noexcept { return x() - shape.getSize().x / 2.f; }
-	float right() 	const noexcept { return x() + shape.getSize().x / 2.f; }
-	float top() 	const noexcept { return y() - shape.getSize().y / 2.f; }
-	float bottom() 	const noexcept { return y() + shape.getSize().y / 2.f; }
+    RectangleShape shape;
+    float x() const noexcept { return shape.getPosition().x; }
+    float y() const noexcept { return shape.getPosition().y; }
+    float left() const noexcept { return x() - shape.getSize().x / 2.f; }
+    float right() const noexcept { return x() + shape.getSize().x / 2.f; }
+    float top() const noexcept { return y() - shape.getSize().y / 2.f; }
+    float bottom() const noexcept { return y() + shape.getSize().y / 2.f; }
 };
 
 struct Paddle : public Rectangle
 {
-	Vector2f velocity;
+    Vector2f velocity;
 
-	Paddle(float mX, float mY) 
-	{ 
-		shape.setPosition(mX, mY);
-		shape.setSize({paddleWidth, paddleHeight});
-		shape.setFillColor(Color::Red);
-		shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
-	}
+    Paddle(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setSize({paddleWidth, paddleHeight});
+        shape.setFillColor(Color::Red);
+        shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
+    }
 
-	void update(FrameTime mFT) 
-	{ 
-		shape.move(velocity * mFT); 
-		
-		if(Keyboard::isKeyPressed(Keyboard::Key::Left) && 
-			left() > 0) velocity.x = -paddleVelocity;
-		else if(Keyboard::isKeyPressed(Keyboard::Key::Right) && 
-			right() < windowWidth) velocity.x = paddleVelocity;
-		else velocity.x = 0;
-	}	
+    void update(FrameTime mFT)
+    {
+        shape.move(velocity * mFT);
+
+        if(Keyboard::isKeyPressed(Keyboard::Key::Left) && left() > 0)
+            velocity.x = -paddleVelocity;
+        else if(Keyboard::isKeyPressed(Keyboard::Key::Right) &&
+                right() < windowWidth)
+            velocity.x = paddleVelocity;
+        else
+            velocity.x = 0;
+    }
 };
 
 struct Brick : public Rectangle
 {
-	bool destroyed{false};
+    bool destroyed{false};
 
-	Brick(float mX, float mY) 
-	{ 
-		shape.setPosition(mX, mY);
-		shape.setSize({blockWidth, blockHeight});
-		shape.setFillColor(Color::Yellow);
-		shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
-	}
+    Brick(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setSize({blockWidth, blockHeight});
+        shape.setFillColor(Color::Yellow);
+        shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
+    }
 };
 
-template<class T1, class T2> bool isIntersecting(T1& mA, T2& mB) noexcept
+template <class T1, class T2>
+bool isIntersecting(T1& mA, T2& mB) noexcept
 {
-	return mA.right() >= mB.left() && mA.left() <= mB.right() 
-			&& mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
+    return mA.right() >= mB.left() && mA.left() <= mB.right() &&
+           mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
 }
 
 void testCollision(Paddle& mPaddle, Ball& mBall) noexcept
 {
-	if(!isIntersecting(mPaddle, mBall)) return;
+    if(!isIntersecting(mPaddle, mBall)) return;
 
-	mBall.velocity.y = -ballVelocity;
-	if(mBall.x() < mPaddle.x()) mBall.velocity.x = -ballVelocity;
-	else mBall.velocity.x = ballVelocity;
+    mBall.velocity.y = -ballVelocity;
+    if(mBall.x() < mPaddle.x())
+        mBall.velocity.x = -ballVelocity;
+    else
+        mBall.velocity.x = ballVelocity;
 }
 
 void testCollision(Brick& mBrick, Ball& mBall) noexcept
 {
-	if(!isIntersecting(mBrick, mBall)) return;
-	mBrick.destroyed = true;
+    if(!isIntersecting(mBrick, mBall)) return;
+    mBrick.destroyed = true;
 
-	float overlapLeft{mBall.right() - mBrick.left()};
-	float overlapRight{mBrick.right() - mBall.left()};
-	float overlapTop{mBall.bottom() - mBrick.top()};
-	float overlapBottom{mBrick.bottom() - mBall.top()};
+    float overlapLeft{mBall.right() - mBrick.left()};
+    float overlapRight{mBrick.right() - mBall.left()};
+    float overlapTop{mBall.bottom() - mBrick.top()};
+    float overlapBottom{mBrick.bottom() - mBall.top()};
 
-	bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
-	bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
+    bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
+    bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
 
-	float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
-	float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
+    float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
+    float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
 
-	if(abs(minOverlapX) < abs(minOverlapY))
-		mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
-	else
-		mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;	
+    if(abs(minOverlapX) < abs(minOverlapY))
+        mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
+    else
+        mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
 }
 
-int main() 
+int main()
 {
-	Ball ball{windowWidth / 2, windowHeight / 2};
-	Paddle paddle{windowWidth / 2, windowHeight - 50};
-	vector<Brick> bricks;
+    Ball ball{windowWidth / 2, windowHeight / 2};
+    Paddle paddle{windowWidth / 2, windowHeight - 50};
+    vector<Brick> bricks;
 
-	for(int iX{0}; iX < countBlocksX; ++iX)	
-		for(int iY{0}; iY < countBlocksY; ++iY)		
-			bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, 
-								(iY + 2) * (blockHeight + 3));	
+    for(int iX{0}; iX < countBlocksX; ++iX)
+        for(int iY{0}; iY < countBlocksY; ++iY)
+            bricks.emplace_back(
+                (iX + 1) * (blockWidth + 3) + 22, (iY + 2) * (blockHeight + 3));
 
-	RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 13"};
-	
-	FrameTime lastFt{0.f};
-	
-	// Let's define a variable to accumulate the current frametime slice.
-	// If the game runs fast, it will take some frames before
-	// `currentSlice >= ftSlice`.
-	// If the game runs slow, it will often take a single frame for
-	// `currentSlice >= ftSlice * n` where `n > 1`.
-	FrameTime currentSlice{0.f}; 
-	
-	window.setFramerateLimit(240);
-	// window.setFramerateLimit(120);
-	// window.setFramerateLimit(60);
-	// window.setFramerateLimit(30);
-	// window.setFramerateLimit(15);
+    RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 13"};
 
-	while(true)
-	{
-		auto timePoint1(chrono::high_resolution_clock::now());
-		
-		window.clear(Color::Black);
+    FrameTime lastFt{0.f};
 
-		// Events and input should be processed every frame
-		// to ensure maximum responsiveness
-		Event event;
-		while(window.pollEvent(event)) 
-		{ 
-			if(event.type == Event::Closed) 
-			{
-				window.close();
-				break;
-			}
-		}
+    // Let's define a variable to accumulate the current frametime slice.
+    // If the game runs fast, it will take some frames before
+    // `currentSlice >= ftSlice`.
+    // If the game runs slow, it will often take a single frame for
+    // `currentSlice >= ftSlice * n` where `n > 1`.
+    FrameTime currentSlice{0.f};
 
-		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
+    window.setFramerateLimit(240);
+    // window.setFramerateLimit(120);
+    // window.setFramerateLimit(60);
+    // window.setFramerateLimit(30);
+    // window.setFramerateLimit(15);
 
-		// The update phase begins here.
-		// We start by accumulating frametime into `currentSlice`.
-		currentSlice += lastFt;
+    while(true)
+    {
+        auto timePoint1(chrono::high_resolution_clock::now());
 
-		// If `currentSlice` is greater or equal than `ftSlice`,
-		// we update our game logic and decrease `currentSlice` by
-		// `ftSlice` until `currentSlice` becomes less than `ftSlice`.
-		// Basically, if `currentSlice` is three times as big as `ftSlice`,
-		// we update our game logic three times.
-		for(; currentSlice >= ftSlice; currentSlice -= ftSlice)
-		{		
-			// Important: we need to pass a fixed `ftStep` constant
-			// value to our game logic update, not `lastFt`.
-			ball.update(ftStep);
-			paddle.update(ftStep);
+        window.clear(Color::Black);
 
-			testCollision(paddle, ball);
-			for(auto& brick : bricks) testCollision(brick, ball);
-			bricks.erase(remove_if(begin(bricks), end(bricks), 
-				[](const Brick& mBrick){ return mBrick.destroyed; }), 
-				end(bricks));
-		}
+        // Events and input should be processed every frame
+        // to ensure maximum responsiveness
+        Event event;
+        while(window.pollEvent(event))
+        {
+            if(event.type == Event::Closed)
+            {
+                window.close();
+                break;
+            }
+        }
 
-		// Drawing is done every frame, instead. Even if we didn't
-		// update our game logic, we still need to draw things on
-		// the screen.
-		window.draw(ball.shape);
-		window.draw(paddle.shape);
-		for(auto& brick : bricks) window.draw(brick.shape);
-		window.display();
+        if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
 
-		auto timePoint2(chrono::high_resolution_clock::now());
-		auto elapsedTime(timePoint2 - timePoint1);
-		FrameTime ft{chrono::duration_cast<
-			chrono::duration<float, milli>>(elapsedTime).count()};
-		
-		lastFt = ft;
-		
-		auto ftSeconds(ft / 1000.f);
-		auto fps(1.f / ftSeconds);
+        // The update phase begins here.
+        // We start by accumulating frametime into `currentSlice`.
+        currentSlice += lastFt;
 
-		window.setTitle("FT: " + to_string(ft) + "\tFPS: " + to_string(fps));
-	}	
+        // If `currentSlice` is greater or equal than `ftSlice`,
+        // we update our game logic and decrease `currentSlice` by
+        // `ftSlice` until `currentSlice` becomes less than `ftSlice`.
+        // Basically, if `currentSlice` is three times as big as `ftSlice`,
+        // we update our game logic three times.
+        for(; currentSlice >= ftSlice; currentSlice -= ftSlice)
+        {
+            // Important: we need to pass a fixed `ftStep` constant
+            // value to our game logic update, not `lastFt`.
+            ball.update(ftStep);
+            paddle.update(ftStep);
 
-	return 0;
+            testCollision(paddle, ball);
+            for(auto& brick : bricks) testCollision(brick, ball);
+            bricks.erase(remove_if(begin(bricks), end(bricks),
+                             [](const Brick& mBrick)
+                             {
+                                 return mBrick.destroyed;
+                             }),
+                end(bricks));
+        }
+
+        // Drawing is done every frame, instead. Even if we didn't
+        // update our game logic, we still need to draw things on
+        // the screen.
+        window.draw(ball.shape);
+        window.draw(paddle.shape);
+        for(auto& brick : bricks) window.draw(brick.shape);
+        window.display();
+
+        auto timePoint2(chrono::high_resolution_clock::now());
+        auto elapsedTime(timePoint2 - timePoint1);
+        FrameTime ft{
+            chrono::duration_cast<chrono::duration<float, milli>>(elapsedTime)
+                .count()};
+
+        lastFt = ft;
+
+        auto ftSeconds(ft / 1000.f);
+        auto fps(1.f / ftSeconds);
+
+        window.setTitle("FT: " + to_string(ft) + "\tFPS: " + to_string(fps));
+    }
+
+    return 0;
 }
 
 // This method works quite well. It has some minor drawbacks, though:
 // * On a fast machine, the precision of game logic updates
 //   is less than it could be. Usually it's not an issue.
-// * On a slow machine, the number of updates in a single frame can 
-//   become very big, making the game unplayable and delaying the 
+// * On a slow machine, the number of updates in a single frame can
+//   become very big, making the game unplayable and delaying the
 //   drawing phase. It's a good idea to limit the number of updates
 //   using a `maxLoops` constant.
-// * With big time slices, objects will appear to jump around - a 
+// * With big time slices, objects will appear to jump around - a
 //   solution, albeit difficult in its implementation, could be interpolating
 //   the objects' positions in the drawing phase, so that movement looks
-//   smooth even during frames where updates didn't occur. 
+//   smooth even during frames where updates didn't occur.
 
 // Good resources:
 // * http://www.koonsolo.com/news/dewitters-gameloop/

@@ -11,117 +11,117 @@
 
 int main()
 {
-	// In C and C++, we can think of variables as entities
-	// having a "type", a "name", a "value" and an "address".
+    // In C and C++, we can think of variables as entities
+    // having a "type", a "name", a "value" and an "address".
 
-	int i{10};
-	float f{5.f};
-	int k;
+    int i{10};
+    float f{5.f};
+    int k;
 
-	//	| 	TYPE 	| 	NAME 	|	VALUE 	| 	ADDRESS 	|
-	//  +-----------+-----------+-----------+---------------+
-	//	| 	int 	| 	i 		|	10 		| 	&i 			|
-	//	| 	float 	| 	f 		|	5.f 	| 	&f 			|
-	//	| 	int 	| 	k 		|	??? 	| 	&k 			|
+    //	| 	TYPE 	| 	NAME 	|	VALUE 	| 	ADDRESS 	|
+    //  +-----------+-----------+-----------+---------------+
+    //	| 	int 	| 	i 		|	10 		| 	&i 			|
+    //	| 	float 	| 	f 		|	5.f 	| 	&f 			|
+    //	| 	int 	| 	k 		|	??? 	| 	&k 			|
 
-	// What does it mean for variables to have an "address"?
-	
-	// The address of a variable is the location in memory
-	// where the variable is allocated.
-	
-	// We can get the address of a variable with the `&` unary
-	// operator. Getting the address of a variable returns a 
-	// pointer of the type of the variable.
+    // What does it mean for variables to have an "address"?
 
-	int* 	pointerToI{&i};	// `pointerToI` is a "pointer to int" 	(int*)
-	float* 	pointerToF{&f};	// `pointerToF` is a "pointer to float"	(float*)
-	int* 	pointerToK{&k};	// `pointerToK` is a "pointer to int" 	(int*)
+    // The address of a variable is the location in memory
+    // where the variable is allocated.
 
-	// A pointer is basically a memory address.
-	// We can access the value contained in that address 
-	// (or, "the value the pointer points to") by using the unary
-	// operator `*` on the pointer variable.
+    // We can get the address of a variable with the `&` unary
+    // operator. Getting the address of a variable returns a
+    // pointer of the type of the variable.
 
-	std::cout << *pointerToI << std::endl; 	// Prints "10".
-	std::cout << *pointerToF << std::endl; 	// Prints "5".
+    int* pointerToI{&i};   // `pointerToI` is a "pointer to int" 	(int*)
+    float* pointerToF{&f}; // `pointerToF` is a "pointer to float"	(float*)
+    int* pointerToK{&k};   // `pointerToK` is a "pointer to int" 	(int*)
 
-	// We can also modify a pointer's value.
-	// Doing so modifies the original variable.
-	*pointerToK = 15;
+    // A pointer is basically a memory address.
+    // We can access the value contained in that address
+    // (or, "the value the pointer points to") by using the unary
+    // operator `*` on the pointer variable.
 
-	std::cout << k << std::endl; 			// Prints "15".
-	std::cout << *pointerToK << std::endl; 	// Prints "15".
+    std::cout << *pointerToI << std::endl; // Prints "10".
+    std::cout << *pointerToF << std::endl; // Prints "5".
 
-	// The opposite also applies: modifying the original
-	// variable will also be reflected when accessing
-	// a pointer's contents.
+    // We can also modify a pointer's value.
+    // Doing so modifies the original variable.
+    *pointerToK = 15;
 
-	k = 20;
+    std::cout << k << std::endl;           // Prints "15".
+    std::cout << *pointerToK << std::endl; // Prints "15".
 
-	std::cout << k << std::endl; 			// Prints "20".
-	std::cout << *pointerToK << std::endl; 	// Prints "20".
+    // The opposite also applies: modifying the original
+    // variable will also be reflected when accessing
+    // a pointer's contents.
 
-	// As you can see, since `pointerToK` points to `k`,
-	// changing `k` or `*pointerToK` is the same thing.
+    k = 20;
+
+    std::cout << k << std::endl;           // Prints "20".
+    std::cout << *pointerToK << std::endl; // Prints "20".
+
+    // As you can see, since `pointerToK` points to `k`,
+    // changing `k` or `*pointerToK` is the same thing.
 
 
 
-	// Using pointers in this way does not alter in any way
-	// the object's lifetime. Here's an example.
+    // Using pointers in this way does not alter in any way
+    // the object's lifetime. Here's an example.
 
-	int* pointerToNested;
+    int* pointerToNested;
 
-	{
-		int nestedNumber{42};
-		pointerToNested = &nestedNumber;
+    {
+        int nestedNumber{42};
+        pointerToNested = &nestedNumber;
 
-		// `nestedNumber` "dies" at the end of the block.
-	}
+        // `nestedNumber` "dies" at the end of the block.
+    }
 
-	// Even if `pointerToNested` seems to point to
-	// `nestedNumber`, the truth is that `nestedNumber`
-	// got deallocated and destroyed at the end of its block,
-	// and now `pointerToNested` points to an invalid memory
-	// location!
+    // Even if `pointerToNested` seems to point to
+    // `nestedNumber`, the truth is that `nestedNumber`
+    // got deallocated and destroyed at the end of its block,
+    // and now `pointerToNested` points to an invalid memory
+    // location!
 
-	// Accessing the contents of `pointerToNested` is "undefined
-	// behavior". It means that, basically, anything can happen.
-	// Usually you get "garbage" values or what is left in memory.
+    // Accessing the contents of `pointerToNested` is "undefined
+    // behavior". It means that, basically, anything can happen.
+    // Usually you get "garbage" values or what is left in memory.
 
-	std::cout << *pointerToNested << std::endl;	// Undefined behavior!
+    std::cout << *pointerToNested << std::endl; // Undefined behavior!
 
-	// It "should" print "42" because it is the value that remained in 
-	// memory after destroying `nestedNumber`. Let's see a more explicit
-	// example.
+    // It "should" print "42" because it is the value that remained in
+    // memory after destroying `nestedNumber`. Let's see a more explicit
+    // example.
 
-	std::vector<int>* pointerToVec;
+    std::vector<int>* pointerToVec;
 
-	{
-		std::vector<int> vec{1, 2, 3, 4};
-		pointerToVec = &vec;
+    {
+        std::vector<int> vec{1, 2, 3, 4};
+        pointerToVec = &vec;
 
-		// The "arrow" operator (`->`) is basically syntactic
-		// sugar for `(*ptr).member`.
+        // The "arrow" operator (`->`) is basically syntactic
+        // sugar for `(*ptr).member`.
 
-		// `pointerToVec->size()` is exactly the same as
-		// `(*pointerToVec).size()`.
+        // `pointerToVec->size()` is exactly the same as
+        // `(*pointerToVec).size()`.
 
-		std::cout << vec.size() << std::endl;			// Prints 4
-		std::cout << pointerToVec->size() << std::endl;	// Prints 4
+        std::cout << vec.size() << std::endl;           // Prints 4
+        std::cout << pointerToVec->size() << std::endl; // Prints 4
 
-		pointerToVec->push_back(1);
+        pointerToVec->push_back(1);
 
-		std::cout << vec.size() << std::endl;			// Prints 5
-		std::cout << pointerToVec->size() << std::endl;	// Prints 5
+        std::cout << vec.size() << std::endl;           // Prints 5
+        std::cout << pointerToVec->size() << std::endl; // Prints 5
 
-		// `vec` "dies" at the end of the block.
-	}
+        // `vec` "dies" at the end of the block.
+    }
 
-	pointerToVec->push_back(1);						// Undefined behavior!
-	std::cout << pointerToVec->size() << std::endl;	// Undefined behavior!
+    pointerToVec->push_back(1);                     // Undefined behavior!
+    std::cout << pointerToVec->size() << std::endl; // Undefined behavior!
 
-	pointerToVec->clear();							// Undefined behavior!
-	std::cout << pointerToVec->size() << std::endl;	// Undefined behavior!
+    pointerToVec->clear();                          // Undefined behavior!
+    std::cout << pointerToVec->size() << std::endl; // Undefined behavior!
 }
 
 // Notice: even if the "Undefined behavior!" code may seem to work,

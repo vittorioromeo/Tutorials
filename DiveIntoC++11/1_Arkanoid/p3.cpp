@@ -10,47 +10,47 @@ using namespace sf;
 constexpr int windowWidth{800}, windowHeight{600};
 
 // Let's create some constants for the Ball class.
-constexpr float	ballRadius{10.f}, ballVelocity{8.f};
+constexpr float ballRadius{10.f}, ballVelocity{8.f};
 
 struct Ball
 {
-	CircleShape shape;
+    CircleShape shape;
 
-	// 2D vector that stores the Ball's velocity.
-	Vector2f velocity{-ballVelocity, -ballVelocity};
+    // 2D vector that stores the Ball's velocity.
+    Vector2f velocity{-ballVelocity, -ballVelocity};
 
-	Ball(float mX, float mY) 
-	{
-		shape.setPosition(mX, mY);
-		shape.setRadius(ballRadius);
-		shape.setFillColor(Color::Red);
-		shape.setOrigin(ballRadius, ballRadius);
-	}	
+    Ball(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setRadius(ballRadius);
+        shape.setFillColor(Color::Red);
+        shape.setOrigin(ballRadius, ballRadius);
+    }
 
-	// Let's "update" the ball: move its shape
-	// by the current velocity.
-	void update() { shape.move(velocity); }
+    // Let's "update" the ball: move its shape
+    // by the current velocity.
+    void update() { shape.move(velocity); }
 };
 
-int main() 
+int main()
 {
-	Ball ball{windowWidth / 2, windowHeight / 2};
+    Ball ball{windowWidth / 2, windowHeight / 2};
 
-	RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 3"};
-	window.setFramerateLimit(60);
-	
-	while(true)
-	{
-		window.clear(Color::Black);
+    RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 3"};
+    window.setFramerateLimit(60);
 
-		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
+    while(true)
+    {
+        window.clear(Color::Black);
 
-		// Every loop iteration, we need to update the ball.
-		ball.update();
+        if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
 
-		window.draw(ball.shape);
-		window.display();
-	}	
+        // Every loop iteration, we need to update the ball.
+        ball.update();
 
-	return 0;
+        window.draw(ball.shape);
+        window.display();
+    }
+
+    return 0;
 }

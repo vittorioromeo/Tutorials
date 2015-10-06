@@ -9,46 +9,41 @@
 
 namespace CPP14LanguageFeatures
 {
-	// Relaxed constexpr restrictions.
-	// 
-	//    * Allows `constexpr` functions to have multiple
-	//      instructions and common language constructs
-	//      such as branches and loops.
-	// 
+    // Relaxed constexpr restrictions.
+    //
+    //    * Allows `constexpr` functions to have multiple
+    //      instructions and common language constructs
+    //      such as branches and loops.
+    //
 
-	constexpr int computeSomething(int mX)
-	{
-		int result{mX};
+    constexpr int computeSomething(int mX)
+    {
+        int result{mX};
 
-		for(int i{0}; i < 10; ++i)
-			result += i;
+        for(int i{0}; i < 10; ++i) result += i;
 
-		if(result > 5) result += 10;
+        if(result > 5) result += 10;
 
-		return result;
-	}	
+        return result;
+    }
 
-	template<int TValue> 
-	struct Test
-	{
+    template <int TValue>
+    struct Test
+    {
+    };
 
-	};
-
-	// Compiles!
-	Test<computeSomething(10)> instance;
+    // Compiles!
+    Test<computeSomething(10)> instance;
 
 
 
-	// For more `constexpr` coolness, check out this
-	// C++Now 2015 talk by Scott Schurr:
+    // For more `constexpr` coolness, check out this
+    // C++Now 2015 talk by Scott Schurr:
 
-	// "constexpr: C++ At Compile Time"
+    // "constexpr: C++ At Compile Time"
 
-	// All slides from the conference are available here:
-	// https://github.com/boostcon/cppnow_presentations_2015/
-}	
-
-int main()
-{
-	return 0;
+    // All slides from the conference are available here:
+    // https://github.com/boostcon/cppnow_presentations_2015/
 }
+
+int main() { return 0; }

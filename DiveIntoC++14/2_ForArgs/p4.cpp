@@ -6,16 +6,11 @@
 #include <iostream>
 #include <tuple>
 
-template<typename TF, typename... Ts>
+template <typename TF, typename... Ts>
 void forArgs(TF&& mFn, Ts&&... mArgs)
 {
-	return (void) std::initializer_list<int>
-	{
-		(
-			mFn(std::forward<Ts>(mArgs)),
-			0
-		)...
-	};
+    return (void)std::initializer_list<int>{
+        (mFn(std::forward<Ts>(mArgs)), 0)...};
 }
 
 // This code segments shows another interesting use case:
@@ -24,13 +19,13 @@ void forArgs(TF&& mFn, Ts&&... mArgs)
 // Example use case: `forTuple` function.
 
 // We can use `forArgs` as a building block for an `std::tuple`
-// element iteration function. 
+// element iteration function.
 
 // To do so, we require an helper function that expands the
 // elements of the `std::tuple` into a function call.
 
 // The following helper function is taken from paper N3802,
-// proposed by Peter Sommerlad. 
+// proposed by Peter Sommerlad.
 
 // You can find the paper at the following address:
 // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3802.pdf
@@ -41,23 +36,21 @@ void forArgs(TF&& mFn, Ts&&... mArgs)
 // ----------------------------------------------------------------
 
 // We do not really need to know how this function works for the
-// scope of this video. 
+// scope of this video.
 
-template<typename F, typename Tuple, size_t... I>
+template <typename F, typename Tuple, size_t... I>
 decltype(auto) apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
 {
-	return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
+    return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
 }
 
-template<typename F, typename Tuple>
+template <typename F, typename Tuple>
 decltype(auto) apply(F&& f, Tuple&& t)
 {
-	using Indices =
-		std::make_index_sequence<std::tuple_size<
-			std::decay_t<Tuple>>::value>;
+    using Indices =
+        std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>;
 
-	return apply_impl(std::forward<F>(f), std::forward<Tuple>(t), 
-		Indices{});
+    return apply_impl(std::forward<F>(f), std::forward<Tuple>(t), Indices{});
 }
 
 // ----------------------------------------------------------------
@@ -68,71 +61,66 @@ decltype(auto) apply(F&& f, Tuple&& t)
 // It then calls the passed function individually passing every
 // element of the tuple as its argument.
 
-template<typename TFn, typename TTpl>
+template <typename TFn, typename TTpl>
 void forTuple(TFn&& mFn, TTpl&& mTpl)
 {
-	// We basically expand the tuple into a function call to
-	// a variadic polymorphic lambda with `apply`, which in
-	// turn passes the expanded tuple elements to `forArgs`,
-	// one by one... which in turn calls `mFn` with every
-	// single tuple element individually.
+    // We basically expand the tuple into a function call to
+    // a variadic polymorphic lambda with `apply`, which in
+    // turn passes the expanded tuple elements to `forArgs`,
+    // one by one... which in turn calls `mFn` with every
+    // single tuple element individually.
 
-	apply
-	(
-		// The callable object we will pass to `apply` is
-		// a generic variadic lambda that forwards its
-		// arguments to `forArgs`.
-		[&mFn](auto&&... xs)
-		{
-			// The `xs...` parameter pack contains the 
-			// `mTpl` tuple elements, expanded thanks
-			// to `apply`.
+    apply(
+        // The callable object we will pass to `apply` is
+        // a generic variadic lambda that forwards its
+        // arguments to `forArgs`.
+        [&mFn](auto&&... xs)
+        {
+            // The `xs...` parameter pack contains the
+            // `mTpl` tuple elements, expanded thanks
+            // to `apply`.
 
-			// We will call the `mFn` unary function
-			// for each expanded tuple element, thanks
-			// to `forArgs`.
-			forArgs
-			(
-				mFn,
-				std::forward<decltype(xs)>(xs)...
-			);
-		},
+            // We will call the `mFn` unary function
+            // for each expanded tuple element, thanks
+            // to `forArgs`.
+            forArgs(mFn, std::forward<decltype(xs)>(xs)...);
+        },
 
-		std::forward<TTpl>(mTpl)
-	);
+        std::forward<TTpl>(mTpl));
 }
 
 int main()
 {
-	// Prints "10 hello 15 c".
-	forTuple
-	(
-		[](const auto& x){ std::cout << x << " "; },
-		std::make_tuple(10, "hello", 15.f, 'c')
-	);	
+    // Prints "10 hello 15 c".
+    forTuple(
+        [](const auto& x)
+        {
+            std::cout << x << " ";
+        },
+        std::make_tuple(10, "hello", 15.f, 'c'));
 
-	// This is roughly equivalent to writing:
-	/*
-		forArgs
-		(
-			[](const auto& x){ std::cout << x << " "; },
-			
-			10,
-			"hello",
-			15.f,
-			'c'
-		);
-	
-		// ...which, in turn, is roughly equivalent to:
-	
-		std::cout << 10 << " ";
-		std::cout << "hello" << " ";
-		std::cout << "15.f" << " ";
-		std::cout << 'c' << " ";
-	*/
+    // This is roughly equivalent to writing:
+    /*
+        forArgs
+        (
+            [](const auto& x){ std::cout << x << " "; },
 
-	std::cout << "\n";
-	return 0;
+            10,
+            "hello",
+            15.f,
+            'c'
+        );
+
+        // ...which, in turn, is roughly equivalent to:
+
+        std::cout << 10 << " ";
+        std::cout << "hello" << " ";
+        std::cout << "15.f" << " ";
+        std::cout << 'c' << " ";
+    */
+
+    std::cout << "\n";
+    return 0;
 }
 
 // All of this is extremely cool and useful - but we're

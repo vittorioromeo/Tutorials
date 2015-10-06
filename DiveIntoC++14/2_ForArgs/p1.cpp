@@ -8,7 +8,7 @@
 // Welcome to "Dive into C++14", part 2.
 // http://vittorioromeo.info
 
-// In this tutorial video we'll take a look at a very 
+// In this tutorial video we'll take a look at a very
 // interesting code snippet, originally posted on Twitter
 // by Sean Parent: <tweet0.png>.
 
@@ -34,25 +34,26 @@
 // It invokes a callable object on every passed argument.
 
 template <class F, class... Args>
-void for_each_argument(F f, Args&&... args) {
-    [](...){}((f(std::forward<Args>(args)), 0)...);
+void for_each_argument(F f, Args&&... args)
+{
+    [](...)
+    {
+    }((f(std::forward<Args>(args)), 0)...);
 }
 
 int main()
 {
-	// Prints "hello123".
-	for_each_argument
-	(
-		[](const auto& x){ std::cout << x; },
+    // Prints "hello123".
+    for_each_argument(
+        [](const auto& x)
+        {
+            std::cout << x;
+        },
 
-		"hello",
-		1,
-		2,
-		3
-	);
+        "hello", 1, 2, 3);
 
-	std::cout << "\n";
-	return 0;
+    std::cout << "\n";
+    return 0;
 }
 
 // That is cool. How does it work?

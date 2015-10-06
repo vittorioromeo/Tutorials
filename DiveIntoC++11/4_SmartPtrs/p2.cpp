@@ -9,111 +9,116 @@
 
 // Let's define an example class, `Resource`, that we'll use in
 // our examples.
-struct Resource { };
+struct Resource
+{
+};
 
-void passByValue(std::unique_ptr<Resource> mResPtr) 			{ /*...*/ }
-void passByConstRef(const std::unique_ptr<Resource>& mResPtr) 	{ /*...*/ }
-void passByRawPtr(Resource* mResPtr) 							{ /*...*/ }
+void passByValue(std::unique_ptr<Resource> mResPtr) { /*...*/}
+void passByConstRef(const std::unique_ptr<Resource>& mResPtr) { /*...*/}
+void passByRawPtr(Resource* mResPtr) { /*...*/}
 
 void whatShouldIPassByToMaintainOriginalOwnership()
 {
-	// Example situation: after we acquire a resource, we need to
-	// refer to its pointer, maintaining ownership.	
-	std::unique_ptr<Resource> resPtr{new Resource};  
+    // Example situation: after we acquire a resource, we need to
+    // refer to its pointer, maintaining ownership.
+    std::unique_ptr<Resource> resPtr{new Resource};
 
 
 
-	// Compile-time error! `std::unique_ptr` cannot be copied!
-	/* passByValue(resPtr); */
+    // Compile-time error! `std::unique_ptr` cannot be copied!
+    /* passByValue(resPtr); */
 
-	// `std::unique_ptr` cannot be copied because otherwise we would end
-	// up in a situation where two `std::unique_ptr` instances "own" the
-	// same free-store-allocated object. It makes no sense because, as
-	// the class's name implies, `std::unique_ptr` is the "unique" owner,
-	// there is no shared ownership.
-
-
-
-	// The following code is fine, but it only works when the object's
-	// lifetime is managed by `std::unique_ptr`. To make your code more
-	// generic, the third solution is suggested.
-	passByConstRef(resPtr);
-
-	// We're not transferring ownership here, we're just referring to the
-	// `std::unique_ptr` indirectly, and by doing so we can easily access
-	// the smart pointer's contents.
+    // `std::unique_ptr` cannot be copied because otherwise we would end
+    // up in a situation where two `std::unique_ptr` instances "own" the
+    // same free-store-allocated object. It makes no sense because, as
+    // the class's name implies, `std::unique_ptr` is the "unique" owner,
+    // there is no shared ownership.
 
 
 
-	// This is the third solution, it works properly, and accepts objects
-	// managed by any kind of smart pointers or allocated on the stack.
-	passByRawPtr(resPtr.get());
+    // The following code is fine, but it only works when the object's
+    // lifetime is managed by `std::unique_ptr`. To make your code more
+    // generic, the third solution is suggested.
+    passByConstRef(resPtr);
 
-	// Herb Sutter actually suggests using T& and T* parameters instead of const 
-	// references to smart pointers. That way, your functions will work with any T, 
-	// regardless of how its lifetime is managed. I strongly suggest to check out 
-	// the article linked at the end of the code segment for more information.
+    // We're not transferring ownership here, we're just referring to the
+    // `std::unique_ptr` indirectly, and by doing so we can easily access
+    // the smart pointer's contents.
 
-	// Remember: `std::unique_ptr::get()` returns a raw pointer to the
-	// smart pointer's contents.
+
+
+    // This is the third solution, it works properly, and accepts objects
+    // managed by any kind of smart pointers or allocated on the stack.
+    passByRawPtr(resPtr.get());
+
+    // Herb Sutter actually suggests using T& and T* parameters instead of const
+    // references to smart pointers. That way, your functions will work with any
+    // T,
+    // regardless of how its lifetime is managed. I strongly suggest to check
+    // out
+    // the article linked at the end of the code segment for more information.
+
+    // Remember: `std::unique_ptr::get()` returns a raw pointer to the
+    // smart pointer's contents.
 }
 
 void iHaveToTransferOwnershipWhatNow()
 {
-	// Example situation: after we acquire a resource, we need to
-	// transfer ownership from a smart pointer to another.
-	std::unique_ptr<Resource> resPtr{new Resource};  
+    // Example situation: after we acquire a resource, we need to
+    // transfer ownership from a smart pointer to another.
+    std::unique_ptr<Resource> resPtr{new Resource};
 
-	// `std::unique_ptr` cannot be copied, but it can be "moved".
+    // `std::unique_ptr` cannot be copied, but it can be "moved".
 
-	// "Move semantics" are a new feature introduced in C++11, 
-	// that basically allows library developers to write efficient
-	// assignments/constructions that avoid expensive copies, or,
-	// as with `std::unique_ptr`'s case, can have a different meaning
-	// than traditional copying. Example:
+    // "Move semantics" are a new feature introduced in C++11,
+    // that basically allows library developers to write efficient
+    // assignments/constructions that avoid expensive copies, or,
+    // as with `std::unique_ptr`'s case, can have a different meaning
+    // than traditional copying. Example:
 
-	{
-		std::string source{"hello!"};
-		std::string target{std::move(source)};
+    {
+        std::string source{"hello!"};
+        std::string target{std::move(source)};
 
-		// After constructing target by "moving `source` into it",
-		// we probably avoided a (possibly expensive) copy.
+        // After constructing target by "moving `source` into it",
+        // we probably avoided a (possibly expensive) copy.
 
-		// `source` is now in an undefined state - what we did was
-		// basically rip `source`'s contents and put them into 
-		// `target`. Using `source` after moving it could result
-		// in errors on unexpected results.
-	}
+        // `source` is now in an undefined state - what we did was
+        // basically rip `source`'s contents and put them into
+        // `target`. Using `source` after moving it could result
+        // in errors on unexpected results.
+    }
 
-	// `std::move()` helps us to transfer ownership between
-	// smart pointers. It explictly expresses the intent of "moving"
-	// ownership.
+    // `std::move()` helps us to transfer ownership between
+    // smart pointers. It explictly expresses the intent of "moving"
+    // ownership.
 
-	std::unique_ptr<Resource> newOwner{std::move(resPtr)};
+    std::unique_ptr<Resource> newOwner{std::move(resPtr)};
 
-	// After moving `resPtr`, using `resPtr` may result in unexpected
-	// results. `newOwner` is now the only owner of the resource, and
-	// you should use it instead of `resPtr`.
+    // After moving `resPtr`, using `resPtr` may result in unexpected
+    // results. `newOwner` is now the only owner of the resource, and
+    // you should use it instead of `resPtr`.
 
-	// Continuously transferring ownership can become confusing
-	// and expensive. Only transfer ownership when it's really required,
-	// otherwise simply refer to the smart pointer's contents either by
-	// const reference or by "raw" pointer.
+    // Continuously transferring ownership can become confusing
+    // and expensive. Only transfer ownership when it's really required,
+    // otherwise simply refer to the smart pointer's contents either by
+    // const reference or by "raw" pointer.
 
-	// Notice that by using `std::move()`, we can now use the `passByValue`
-	// function:
+    // Notice that by using `std::move()`, we can now use the `passByValue`
+    // function:
 
-	passByValue(std::move(newOwner));
+    passByValue(std::move(newOwner));
 
-	// After this call, the resource will be owned by the `passByValue` 
-	// parameter called `mPtr`, and after the function finishes the
-	// `std::unique_ptr` will go out-of-scope and the memory previously
-	// allocated for the resource will be freed.
+    // After this call, the resource will be owned by the `passByValue`
+    // parameter called `mPtr`, and after the function finishes the
+    // `std::unique_ptr` will go out-of-scope and the memory previously
+    // allocated for the resource will be freed.
 }
 
 int main() { return 0; }
 
-// Here's a very interesting and well-written article about smart pointers parameters
+// Here's a very interesting and well-written article about smart pointers
+// parameters
 // by Herb Sutter. I strongly reccommend you to read it!
 // http://herbsutter.com/2013/06/05/gotw-91-solution-smart-pointer-parameters/
 

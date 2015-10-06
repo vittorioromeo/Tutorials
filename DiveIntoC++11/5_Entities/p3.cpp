@@ -17,125 +17,125 @@
 
 struct Animal
 {
-	// Remember: the `virtual` keyword is essential for 
-	// runtime polymorphism!
+    // Remember: the `virtual` keyword is essential for
+    // runtime polymorphism!
 
-	virtual void makeNoise() { }
+    virtual void makeNoise() {}
 
-	// As we'll be using this class polymorphically, it requires
-	// a virtual destructor. Even if empty, the virtual destructor
-	// will make sure the right amount of memory is freed when 
-	// a polymorphic instance is destroyed.
-	virtual ~Animal() { }
+    // As we'll be using this class polymorphically, it requires
+    // a virtual destructor. Even if empty, the virtual destructor
+    // will make sure the right amount of memory is freed when
+    // a polymorphic instance is destroyed.
+    virtual ~Animal() {}
 };
 
 // The `<A> : <B>` syntax means that <A> inherits from <B>.
-struct Dog : Animal 
+struct Dog : Animal
 {
-	// We use the `override` C++11 keyword to make sure
-	// the method we're defining polymorphically overrides
-	// the base class's method.
+    // We use the `override` C++11 keyword to make sure
+    // the method we're defining polymorphically overrides
+    // the base class's method.
 
-	// Overridden methods must have the same signature as
-	// the base virtual method.
+    // Overridden methods must have the same signature as
+    // the base virtual method.
 
-	void makeNoise() override { std::cout << "Bark!" << std::endl; }
+    void makeNoise() override { std::cout << "Bark!" << std::endl; }
 };
 
-struct Cat : Animal 
+struct Cat : Animal
 {
-	void makeNoise() override { std::cout << "Meow!" << std::endl; }
+    void makeNoise() override { std::cout << "Meow!" << std::endl; }
 };
 
 int main()
 {
-	// Derived classes may have different sizes from the base
-	// class, so it is impossible to allocate them on the stack, since
-	// the size of the object is not known at compile-time.
-	// It is mandatory to access and interact with polymorphic objects 
-	// through pointers.
-	
-	/*
-		// INCORRECT:
+    // Derived classes may have different sizes from the base
+    // class, so it is impossible to allocate them on the stack, since
+    // the size of the object is not known at compile-time.
+    // It is mandatory to access and interact with polymorphic objects
+    // through pointers.
 
-		Animal myDog{Dog{}};
-		Animal myCat{Cat{}};
+    /*
+        // INCORRECT:
 
-		// This causes a problem called "object slicing":		
-		// `sizeof(Animal)` could be different from `sizeof(Dog)`
-		// or `sizeof(Cat)`.
+        Animal myDog{Dog{}};
+        Animal myCat{Cat{}};
 
-		// Only enough memory for an object of type 
-		// `Animal` is allocated. 
+        // This causes a problem called "object slicing":
+        // `sizeof(Animal)` could be different from `sizeof(Dog)`
+        // or `sizeof(Cat)`.
 
-		// Polymorphism may not work as expected.
-	*/
+        // Only enough memory for an object of type
+        // `Animal` is allocated.
 
-	{
-		// OK:
+        // Polymorphism may not work as expected.
+    */
 
-		Dog myDog{};
-		Cat myCat{};
+    {
+        // OK:
 
-		Animal* ptrAnimal;
+        Dog myDog{};
+        Cat myCat{};
 
-		ptrAnimal = &myDog;
-		ptrAnimal->makeNoise(); // Bark!
+        Animal* ptrAnimal;
 
-		ptrAnimal = &myCat;
-		ptrAnimal->makeNoise(); // Meow!
+        ptrAnimal = &myDog;
+        ptrAnimal->makeNoise(); // Bark!
 
-		// `myDog` and `myCat` will not suffer from object slicing,
-		// as they are allocated (on the stack) with their "real" 
-		// type.
+        ptrAnimal = &myCat;
+        ptrAnimal->makeNoise(); // Meow!
 
-		// Accessing them through a base `Animal*` pointer will
-		// enable polymorphism.
-	}
+        // `myDog` and `myCat` will not suffer from object slicing,
+        // as they are allocated (on the stack) with their "real"
+        // type.
 
-	{
-		// Usually we use heap memory to deal with polymorphic objects:
+        // Accessing them through a base `Animal*` pointer will
+        // enable polymorphism.
+    }
 
-		std::unique_ptr<Animal> myDog{new Dog{}};
-		std::unique_ptr<Animal> myCat{new Cat{}};
+    {
+        // Usually we use heap memory to deal with polymorphic objects:
 
-		// We use `std::unique_ptr` to make sure the memory
-		// allocated for the polymorphic object will be freed.
+        std::unique_ptr<Animal> myDog{new Dog{}};
+        std::unique_ptr<Animal> myCat{new Cat{}};
 
-		// Let's call our polymorphic method.
+        // We use `std::unique_ptr` to make sure the memory
+        // allocated for the polymorphic object will be freed.
 
-		myDog->makeNoise(); // Prints "Bark!"
-		myCat->makeNoise(); // Prints "Meow!"
+        // Let's call our polymorphic method.
 
-		// As you can see, even if the types of `myDog` and
-		// `myCat` are equal (`std::unique_ptr<Animal>`), C++
-		// runtime polymorphism runs through the class hierarchy
-		// and calls the correct method.
+        myDog->makeNoise(); // Prints "Bark!"
+        myCat->makeNoise(); // Prints "Meow!"
 
-		// This allows us, for example, to store polymorphic objects
-		// in the same container:
+        // As you can see, even if the types of `myDog` and
+        // `myCat` are equal (`std::unique_ptr<Animal>`), C++
+        // runtime polymorphism runs through the class hierarchy
+        // and calls the correct method.
 
-		std::vector<std::unique_ptr<Animal>> animals;
+        // This allows us, for example, to store polymorphic objects
+        // in the same container:
 
-		std::cout << "Iterating...\n";
-		animals.emplace_back(new Dog{});
-		animals.emplace_back(new Dog{});
-		animals.emplace_back(new Cat{});
-		animals.emplace_back(new Dog{});
-		animals.emplace_back(new Cat{});
-		animals.emplace_back(new Cat{});
+        std::vector<std::unique_ptr<Animal>> animals;
 
-		for(const auto& a : animals) a->makeNoise();
+        std::cout << "Iterating...\n";
+        animals.emplace_back(new Dog{});
+        animals.emplace_back(new Dog{});
+        animals.emplace_back(new Cat{});
+        animals.emplace_back(new Dog{});
+        animals.emplace_back(new Cat{});
+        animals.emplace_back(new Cat{});
 
-		// Prints:
-		//
-		//    "Bark!"
-		//    "Bark!"
-		//    "Meow!"
-		//    "Bark!"
-		//    "Meow!"
-		//    "Meow!"
-	}
+        for(const auto& a : animals) a->makeNoise();
 
-	return 0;
+        // Prints:
+        //
+        //    "Bark!"
+        //    "Bark!"
+        //    "Meow!"
+        //    "Bark!"
+        //    "Meow!"
+        //    "Meow!"
+    }
+
+    return 0;
 }

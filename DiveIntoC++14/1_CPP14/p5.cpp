@@ -9,53 +9,56 @@
 
 namespace CPP14LanguageFeatures
 {
-	// Generic lambdas.
-	// 
-	//    * Lambda function parameters can now be `auto`.
-	//    
-	//    * This effectively makes the lambda behave like
-	//      a functor with a templated `operator()`.
-	// 
+    // Generic lambdas.
+    //
+    //    * Lambda function parameters can now be `auto`.
+    //
+    //    * This effectively makes the lambda behave like
+    //      a functor with a templated `operator()`.
+    //
 
-	auto l0([](auto x){ return x * 2; });
-	
-	static_assert(std::is_same<decltype(l0(1)), 
-		int>(), "");
+    auto l0([](auto x)
+        {
+            return x * 2;
+        });
 
-	static_assert(std::is_same<decltype(l0(1.f)), 
-		float>(), "");
+    static_assert(std::is_same<decltype(l0(1)), int>(), "");
 
-	static_assert(std::is_same<decltype(l0(1.)), 
-		double>(), "");
+    static_assert(std::is_same<decltype(l0(1.f)), float>(), "");
 
-
-
-	// Lambdas can also take variadic parameter packs.
-	auto l1([](auto... xs){ return sizeof...(xs); });
+    static_assert(std::is_same<decltype(l0(1.)), double>(), "");
 
 
 
-	// This lambda...
-	auto l2([](auto x, auto y){ return x * y; });
+    // Lambdas can also take variadic parameter packs.
+    auto l1([](auto... xs)
+        {
+            return sizeof...(xs);
+        });
 
-	// ...gets converted to something like this during
-	// compilation:
-	struct CompilerGeneratedL2
-	{
-	  	template<typename T1, typename T2>
-	    auto operator()(T1 x, T2 y) const 
-	    {
-	    	return x * y;
-	    }
-	};		
-}	
 
-int main()
-{
-	return 0;
+
+    // This lambda...
+    auto l2([](auto x, auto y)
+        {
+            return x * y;
+        });
+
+    // ...gets converted to something like this during
+    // compilation:
+    struct CompilerGeneratedL2
+    {
+        template <typename T1, typename T2>
+        auto operator()(T1 x, T2 y) const
+        {
+            return x * y;
+        }
+    };
 }
 
-// The C++14 standard has more core language features and library 
+int main() { return 0; }
+
+// The C++14 standard has more core language features and library
 // additions - these were just some of my favorites!
 
 // Here are some helpful links to explore what the new standard

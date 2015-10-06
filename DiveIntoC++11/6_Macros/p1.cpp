@@ -25,72 +25,72 @@
 // * ...
 
 // A possible way of dealing with all these elements is creating
-// a class for every element, with an `update` method and a `draw` 
+// a class for every element, with an `update` method and a `draw`
 // method, then use `std::vectors` of `std::unique_ptr` to manage
 // their lifetime. Here's an example:
 
 namespace VeryNaiveArkanoid
 {
-	// Here are the game element classes:
+    // Here are the game element classes:
 
-	struct Ball 
-	{ 
-		void update(float mFT) { /* ... */ } 
-		void draw() { /* ... */ } 
-	};
+    struct Ball
+    {
+        void update(float mFT) { /* ... */}
+        void draw() { /* ... */}
+    };
 
-	struct Brick 
-	{ 
-		void update(float mFT) { /* ... */ } 
-		void draw() { /* ... */ } 
-	};
+    struct Brick
+    {
+        void update(float mFT) { /* ... */}
+        void draw() { /* ... */}
+    };
 
-	struct Paddle 
-	{ 
-		void update(float mFT) { /* ... */ } 
-		void draw() { /* ... */ } 
-	};
+    struct Paddle
+    {
+        void update(float mFT) { /* ... */}
+        void draw() { /* ... */}
+    };
 
-	struct Powerup 
-	{ 
-		void update(float mFT) { /* ... */ } 
-		void draw() { /* ... */ } 
-	};
+    struct Powerup
+    {
+        void update(float mFT) { /* ... */}
+        void draw() { /* ... */}
+    };
 
-	// And there is the "game" class itself:
+    // And there is the "game" class itself:
 
-	struct Game
-	{
-		std::vector<std::unique_ptr<Ball>> balls;
-		std::vector<std::unique_ptr<Brick>> bricks;
-		std::vector<std::unique_ptr<Paddle>> paddles;
-		std::vector<std::unique_ptr<Powerup>> powerups;
+    struct Game
+    {
+        std::vector<std::unique_ptr<Ball>> balls;
+        std::vector<std::unique_ptr<Brick>> bricks;
+        std::vector<std::unique_ptr<Paddle>> paddles;
+        std::vector<std::unique_ptr<Powerup>> powerups;
 
-		void update(float mFT)
-		{
-			for(auto& b : balls) 	b->update(mFT);
-			for(auto& b : bricks) 	b->update(mFT);
-			for(auto& p : paddles) 	p->update(mFT);
-			for(auto& p : powerups) p->update(mFT);
-		}
+        void update(float mFT)
+        {
+            for(auto& b : balls) b->update(mFT);
+            for(auto& b : bricks) b->update(mFT);
+            for(auto& p : paddles) p->update(mFT);
+            for(auto& p : powerups) p->update(mFT);
+        }
 
-		void draw()
-		{
-			for(auto& b : balls) 	b->draw();
-			for(auto& b : bricks) 	b->draw();
-			for(auto& p : paddles) 	p->draw();
-			for(auto& p : powerups) p->draw();
-		}
-	};	
+        void draw()
+        {
+            for(auto& b : balls) b->draw();
+            for(auto& b : bricks) b->draw();
+            for(auto& p : paddles) p->draw();
+            for(auto& p : powerups) p->draw();
+        }
+    };
 
-	// As you can probably see, this approach is very difficult
-	// to maintain and expand. For `n` game element types, you need
-	// `n` containers, and `n` function calls. 
+    // As you can probably see, this approach is very difficult
+    // to maintain and expand. For `n` game element types, you need
+    // `n` containers, and `n` function calls.
 
-	// Adding another game element would require the developer
-	// to modify the game class itself. 
+    // Adding another game element would require the developer
+    // to modify the game class itself.
 
-	// This approach is confusing, error-prone and not scalable.
+    // This approach is confusing, error-prone and not scalable.
 }
 
 // Let's move on, and check out a (possibly) better implementation.

@@ -7,16 +7,11 @@
 #include <iostream>
 #include <tuple>
 
-template<typename TF, typename... Ts>
+template <typename TF, typename... Ts>
 void forArgs(TF&& mFn, Ts&&... mArgs)
 {
-	return (void) std::initializer_list<int>
-	{
-		(
-			mFn(std::forward<Ts>(mArgs)),
-			0
-		)...
-	};
+    return (void)std::initializer_list<int>{
+        (mFn(std::forward<Ts>(mArgs)), 0)...};
 }
 
 // The implementation I'm about to show you uses a new library
@@ -37,38 +32,39 @@ using Seq0 = std::make_index_sequence<10>;
 
 // Let's forward-declare a `struct` that will print an index
 // sequence to the standard output.
-template<typename> 
+template <typename>
 struct SeqPrinter;
 
 // Let's now specialize it to match an index sequence:
-template<std::size_t... TIs> 
+template <std::size_t... TIs>
 struct SeqPrinter<std::index_sequence<TIs...>>
 {
-	// And let's use our `forArgs` function to print
-	// the indices:
-	static void print()
-	{
-		forArgs
-		(
-			[](auto x){ std::cout << x << " "; },
+    // And let's use our `forArgs` function to print
+    // the indices:
+    static void print()
+    {
+        forArgs(
+            [](auto x)
+            {
+                std::cout << x << " ";
+            },
 
-			// We can expand the matched indices here:
-			TIs...
-		);
-	}
+            // We can expand the matched indices here:
+            TIs...);
+    }
 };
 
 int main()
 {
-	// Let's try it out now.
+    // Let's try it out now.
 
-	// Prints "0 1 2 3 4 5 6 7 8 9".
-	SeqPrinter<Seq0>::print();
-	std::cout << "\n";
+    // Prints "0 1 2 3 4 5 6 7 8 9".
+    SeqPrinter<Seq0>::print();
+    std::cout << "\n";
 
-	// Prints "0 1 2 3 4".
-	SeqPrinter<std::make_index_sequence<5>>::print();
-	std::cout << "\n";
+    // Prints "0 1 2 3 4".
+    SeqPrinter<std::make_index_sequence<5>>::print();
+    std::cout << "\n";
 
-	return 0;
+    return 0;
 }

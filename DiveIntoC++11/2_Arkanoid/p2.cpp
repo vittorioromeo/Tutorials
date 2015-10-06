@@ -13,126 +13,135 @@ using namespace sf;
 using FrameTime = float;
 
 constexpr int windowWidth{800}, windowHeight{600};
-constexpr float	ballRadius{10.f}, ballVelocity{8.f};
+constexpr float ballRadius{10.f}, ballVelocity{8.f};
 constexpr float paddleWidth{60.f}, paddleHeight{20.f}, paddleVelocity{6.f};
 constexpr float blockWidth{60.f}, blockHeight{20.f};
 constexpr int countBlocksX{11}, countBlocksY{4};
 
 struct Ball
 {
-	CircleShape shape;
-	Vector2f velocity{-ballVelocity, -ballVelocity};
+    CircleShape shape;
+    Vector2f velocity{-ballVelocity, -ballVelocity};
 
-	Ball(float mX, float mY) 
-	{
-		shape.setPosition(mX, mY);
-		shape.setRadius(ballRadius);
-		shape.setFillColor(Color::Red);
-		shape.setOrigin(ballRadius, ballRadius);
-	}	
-	
-	void update() 
-	{ 
-		shape.move(velocity); 
+    Ball(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setRadius(ballRadius);
+        shape.setFillColor(Color::Red);
+        shape.setOrigin(ballRadius, ballRadius);
+    }
 
-		if(left() < 0) velocity.x = ballVelocity;
-		else if(right() > windowWidth) velocity.x = -ballVelocity;
+    void update()
+    {
+        shape.move(velocity);
 
-		if(top() < 0) velocity.y = ballVelocity;
-		else if(bottom() > windowHeight) velocity.y = -ballVelocity;
-	}
+        if(left() < 0)
+            velocity.x = ballVelocity;
+        else if(right() > windowWidth)
+            velocity.x = -ballVelocity;
 
-	float x() 		const noexcept { return shape.getPosition().x; }
-	float y() 		const noexcept { return shape.getPosition().y; }
-	float left() 	const noexcept { return x() - shape.getRadius(); }
-	float right() 	const noexcept { return x() + shape.getRadius(); }
-	float top() 	const noexcept { return y() - shape.getRadius(); }
-	float bottom() 	const noexcept { return y() + shape.getRadius(); }
+        if(top() < 0)
+            velocity.y = ballVelocity;
+        else if(bottom() > windowHeight)
+            velocity.y = -ballVelocity;
+    }
+
+    float x() const noexcept { return shape.getPosition().x; }
+    float y() const noexcept { return shape.getPosition().y; }
+    float left() const noexcept { return x() - shape.getRadius(); }
+    float right() const noexcept { return x() + shape.getRadius(); }
+    float top() const noexcept { return y() - shape.getRadius(); }
+    float bottom() const noexcept { return y() + shape.getRadius(); }
 };
 
 struct Rectangle
 {
-	RectangleShape shape;
-	float x() 		const noexcept { return shape.getPosition().x; }
-	float y() 		const noexcept { return shape.getPosition().y; }
-	float left() 	const noexcept { return x() - shape.getSize().x / 2.f; }
-	float right() 	const noexcept { return x() + shape.getSize().x / 2.f; }
-	float top() 	const noexcept { return y() - shape.getSize().y / 2.f; }
-	float bottom() 	const noexcept { return y() + shape.getSize().y / 2.f; }
+    RectangleShape shape;
+    float x() const noexcept { return shape.getPosition().x; }
+    float y() const noexcept { return shape.getPosition().y; }
+    float left() const noexcept { return x() - shape.getSize().x / 2.f; }
+    float right() const noexcept { return x() + shape.getSize().x / 2.f; }
+    float top() const noexcept { return y() - shape.getSize().y / 2.f; }
+    float bottom() const noexcept { return y() + shape.getSize().y / 2.f; }
 };
 
 struct Paddle : public Rectangle
 {
-	Vector2f velocity;
+    Vector2f velocity;
 
-	Paddle(float mX, float mY) 
-	{ 
-		shape.setPosition(mX, mY);
-		shape.setSize({paddleWidth, paddleHeight});
-		shape.setFillColor(Color::Red);
-		shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
-	}
+    Paddle(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setSize({paddleWidth, paddleHeight});
+        shape.setFillColor(Color::Red);
+        shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
+    }
 
-	void update() 
-	{ 
-		shape.move(velocity); 
-		
-		if(Keyboard::isKeyPressed(Keyboard::Key::Left) && 
-			left() > 0) velocity.x = -paddleVelocity;
-		else if(Keyboard::isKeyPressed(Keyboard::Key::Right) && 
-			right() < windowWidth) velocity.x = paddleVelocity;
-		else velocity.x = 0;
-	}	
+    void update()
+    {
+        shape.move(velocity);
+
+        if(Keyboard::isKeyPressed(Keyboard::Key::Left) && left() > 0)
+            velocity.x = -paddleVelocity;
+        else if(Keyboard::isKeyPressed(Keyboard::Key::Right) &&
+                right() < windowWidth)
+            velocity.x = paddleVelocity;
+        else
+            velocity.x = 0;
+    }
 };
 
 struct Brick : public Rectangle
 {
-	bool destroyed{false};
+    bool destroyed{false};
 
-	Brick(float mX, float mY) 
-	{ 
-		shape.setPosition(mX, mY);
-		shape.setSize({blockWidth, blockHeight});
-		shape.setFillColor(Color::Yellow);
-		shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
-	}
+    Brick(float mX, float mY)
+    {
+        shape.setPosition(mX, mY);
+        shape.setSize({blockWidth, blockHeight});
+        shape.setFillColor(Color::Yellow);
+        shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
+    }
 };
 
-template<class T1, class T2> bool isIntersecting(T1& mA, T2& mB) noexcept
+template <class T1, class T2>
+bool isIntersecting(T1& mA, T2& mB) noexcept
 {
-	return mA.right() >= mB.left() && mA.left() <= mB.right() 
-			&& mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
+    return mA.right() >= mB.left() && mA.left() <= mB.right() &&
+           mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
 }
 
 void testCollision(Paddle& mPaddle, Ball& mBall) noexcept
 {
-	if(!isIntersecting(mPaddle, mBall)) return;
+    if(!isIntersecting(mPaddle, mBall)) return;
 
-	mBall.velocity.y = -ballVelocity;
-	if(mBall.x() < mPaddle.x()) mBall.velocity.x = -ballVelocity;
-	else mBall.velocity.x = ballVelocity;
+    mBall.velocity.y = -ballVelocity;
+    if(mBall.x() < mPaddle.x())
+        mBall.velocity.x = -ballVelocity;
+    else
+        mBall.velocity.x = ballVelocity;
 }
 
 void testCollision(Brick& mBrick, Ball& mBall) noexcept
 {
-	if(!isIntersecting(mBrick, mBall)) return;
-	mBrick.destroyed = true;
+    if(!isIntersecting(mBrick, mBall)) return;
+    mBrick.destroyed = true;
 
-	float overlapLeft{mBall.right() - mBrick.left()};
-	float overlapRight{mBrick.right() - mBall.left()};
-	float overlapTop{mBall.bottom() - mBrick.top()};
-	float overlapBottom{mBrick.bottom() - mBall.top()};
+    float overlapLeft{mBall.right() - mBrick.left()};
+    float overlapRight{mBrick.right() - mBall.left()};
+    float overlapTop{mBall.bottom() - mBrick.top()};
+    float overlapBottom{mBrick.bottom() - mBall.top()};
 
-	bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
-	bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
+    bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
+    bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
 
-	float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
-	float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
+    float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
+    float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
 
-	if(abs(minOverlapX) < abs(minOverlapY))
-		mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
-	else
-		mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;	
+    if(abs(minOverlapX) < abs(minOverlapY))
+        mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
+    else
+        mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
 }
 
 // Our code has a critical issue: it is framerate dependent!
@@ -147,84 +156,88 @@ void testCollision(Brick& mBrick, Ball& mBall) noexcept
 // Let's begin by getting the time a frame takes to update/draw,
 // using C++11's fantastic `std::chrono` library.
 
-int main() 
+int main()
 {
-	Ball ball{windowWidth / 2, windowHeight / 2};
-	Paddle paddle{windowWidth / 2, windowHeight - 50};
-	vector<Brick> bricks;
+    Ball ball{windowWidth / 2, windowHeight / 2};
+    Paddle paddle{windowWidth / 2, windowHeight - 50};
+    vector<Brick> bricks;
 
-	for(int iX{0}; iX < countBlocksX; ++iX)	
-		for(int iY{0}; iY < countBlocksY; ++iY)		
-			bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, 
-								(iY + 2) * (blockHeight + 3));	
+    for(int iX{0}; iX < countBlocksX; ++iX)
+        for(int iY{0}; iY < countBlocksY; ++iY)
+            bricks.emplace_back(
+                (iX + 1) * (blockWidth + 3) + 22, (iY + 2) * (blockHeight + 3));
 
-	RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 11"};
-	
-	// Let's comment out the frame rate limit for now.
-	// window.setFramerateLimit(60);
-	
-	while(true)
-	{
-		// Start of our time interval.
-		auto timePoint1(chrono::high_resolution_clock::now());
-		
-		window.clear(Color::Black);
+    RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 11"};
 
-		Event event;
-		while(window.pollEvent(event)) 
-		{ 
-			if(event.type == Event::Closed) 
-			{
-				window.close();
-				break;
-			}
-		}
+    // Let's comment out the frame rate limit for now.
+    // window.setFramerateLimit(60);
 
-		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
+    while(true)
+    {
+        // Start of our time interval.
+        auto timePoint1(chrono::high_resolution_clock::now());
 
-		ball.update();
-		paddle.update();
-		testCollision(paddle, ball);
-		for(auto& brick : bricks) testCollision(brick, ball);
-		bricks.erase(remove_if(begin(bricks), end(bricks), 
-			[](const Brick& mBrick){ return mBrick.destroyed; }), 
-			end(bricks));
+        window.clear(Color::Black);
 
-		window.draw(ball.shape);
-		window.draw(paddle.shape);
-		for(auto& brick : bricks) window.draw(brick.shape);
-		window.display();
+        Event event;
+        while(window.pollEvent(event))
+        {
+            if(event.type == Event::Closed)
+            {
+                window.close();
+                break;
+            }
+        }
 
-		// End of our time interval.
-		auto timePoint2(chrono::high_resolution_clock::now());
+        if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
 
-		// Let's calculate the frame time in milliseconds, 
-		// and "print it out" as the window's title.
+        ball.update();
+        paddle.update();
+        testCollision(paddle, ball);
+        for(auto& brick : bricks) testCollision(brick, ball);
+        bricks.erase(remove_if(begin(bricks), end(bricks),
+                         [](const Brick& mBrick)
+                         {
+                             return mBrick.destroyed;
+                         }),
+            end(bricks));
 
-		// Subtracting two std::chrono::time_point objects
-		// returns an `std::chrono::duration` object, which 
-		// represents a time period.
-		auto elapsedTime(timePoint2 - timePoint1);
+        window.draw(ball.shape);
+        window.draw(paddle.shape);
+        for(auto& brick : bricks) window.draw(brick.shape);
+        window.display();
 
-		// We want to get the frametime in milliseconds, so we can
-		// just use the safe `std::chrono::duration_cast` function.
-		// To convert the duration to a `float`, we will use `.count()`
-		// at the end.
-		FrameTime ft{chrono::duration_cast<
-			chrono::duration<float, milli>>(elapsedTime).count()};
+        // End of our time interval.
+        auto timePoint2(chrono::high_resolution_clock::now());
 
-		// We can approximate fps by dividing 1.f by the
-		// elapsed seconds, calculated converting ft 
-		// to seconds (ms / 1000.f).
-		auto ftSeconds(ft / 1000.f);
-		auto fps(1.f / ftSeconds);
+        // Let's calculate the frame time in milliseconds,
+        // and "print it out" as the window's title.
 
-		// std::to_string is another very useful C++11 function,
-		// that transforms many different types to an std::string.
-		window.setTitle("FT: " + to_string(ft) + "\tFPS: " + to_string(fps));
-	}	
+        // Subtracting two std::chrono::time_point objects
+        // returns an `std::chrono::duration` object, which
+        // represents a time period.
+        auto elapsedTime(timePoint2 - timePoint1);
 
-	return 0;
+        // We want to get the frametime in milliseconds, so we can
+        // just use the safe `std::chrono::duration_cast` function.
+        // To convert the duration to a `float`, we will use `.count()`
+        // at the end.
+        FrameTime ft{
+            chrono::duration_cast<chrono::duration<float, milli>>(elapsedTime)
+                .count()};
+
+        // We can approximate fps by dividing 1.f by the
+        // elapsed seconds, calculated converting ft
+        // to seconds (ms / 1000.f).
+        auto ftSeconds(ft / 1000.f);
+        auto fps(1.f / ftSeconds);
+
+        // std::to_string is another very useful C++11 function,
+        // that transforms many different types to an std::string.
+        window.setTitle("FT: " + to_string(ft) + "\tFPS: " + to_string(fps));
+    }
+
+    return 0;
 }
 
 // The game should now run insanely fast... let's see what
