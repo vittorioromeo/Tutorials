@@ -100,7 +100,11 @@ void shared_ptr_example()
 int main()
 {
     unique_ptr_example();
+    std::cout << "\n";
+
     shared_ptr_example();
+    std::cout << "\n";
+
     return 0;
 }
 
