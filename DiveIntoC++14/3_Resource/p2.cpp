@@ -25,6 +25,7 @@ namespace legacy
     template <typename T>
     auto free_store_new(T* ptr)
     {
+        std::cout << "free_store_new\n";
         return ptr;
     }
 
@@ -33,6 +34,15 @@ namespace legacy
     template <typename T>
     void free_store_delete(T* ptr)
     {
+        if(ptr == nullptr)
+        {
+            // std::cout << "free_store_delete(nullptr)\n";
+        }
+        else
+        {
+            std::cout << "free_store_delete\n";
+        }
+
         delete ptr;
     }
 
@@ -50,16 +60,25 @@ namespace legacy
 
     // The real OpenGL functions have the same name as signature as these fake
     // implementations:
-    void glGenBuffers(GLsizei, GLuint* ptr) { *ptr = 1; }
-    void glDeleteBuffers(GLsizei, GLuint* ptr)
+    void glGenBuffers(GLsizei n, GLuint* ptr)
+    {
+        static GLuint next_id{1};
+
+        std::cout << "glGenBuffers(" << n << ", ptr) -> " << next_id << "\n";
+
+        *ptr = next_id++;
+    }
+    void glDeleteBuffers(GLsizei n, const GLuint* ptr)
     {
         if(*ptr == 0)
         {
             // Do nothing.
+            // std::cout << "glDeleteBuffers(0)\n";
         }
         else
         {
             // Free buffer memory.
+            std::cout << "glDeleteBuffers(" << n << ", " << *ptr << ")\n";
         }
     }
 
@@ -71,16 +90,25 @@ namespace legacy
 
     // Let's create a fake file management API with these semantics.
 
-    int open_file() { return 1; }
+    int open_file()
+    {
+        static int next_id(1);
+
+        std::cout << "open_file() -> " << next_id << "\n";
+
+        return next_id++;
+    }
     void close_file(int id)
     {
         if(id == -1)
         {
             // Do nothing.
+            // std::cout << "close_file(-1)\n";
         }
         else
         {
             // Close file.
+            std::cout << "close_file(" << id << ")\n";
         }
     }
 }
@@ -117,27 +145,127 @@ namespace behavior
         }
     };
 
+    // TODO: mention other ways of dealing witn n
+    // * could be a template parameter
+    // * could be stored in the behavior (unsafe)
     struct vbo_b
     {
-        using handle_type = legacy::GLuint;
+        struct vbo_handle
+        {
+            legacy::GLuint _id;
+            legacy::GLsizei _n;
+        };
 
-        handle_type null_handle() { return 0; }
+        using handle_type = vbo_handle;
+
+        handle_type null_handle() { return {0, 0}; }
 
         handle_type acquire(std::size_t n)
         {
             handle_type result;
-            legacy::glGenBuffers(n, &result);
+
+            legacy::glGenBuffers(n, &result._id);
+            result._n = n;
+
             return result;
         }
 
         void release(const handle_type& handle)
         {
-            legacy::free_store_delete(handle);
+            legacy::glDeleteBuffers(handle._n, &handle._id);
         }
+    };
+
+    struct file_b
+    {
+        using handle_type = int;
+
+        handle_type null_handle() { return -1; }
+
+        handle_type acquire() { return legacy::open_file(); }
+
+        void release(const handle_type& handle) { legacy::close_file(handle); }
     };
 }
 
-int main() { return 0; }
+void simulate_unique_ownership();
+void simulate_shared_ownership();
 
-// TODO:
-// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3949.pdf
+int main()
+{
+    simulate_unique_ownership();
+    simulate_shared_ownership();
+    return 0;
+}
+
+void simulate_unique_ownership()
+{
+    behavior::file_b b;
+
+    // `h0` is the current unique owner.
+    auto h0 = b.acquire();
+
+    // ... use `h0` ...
+
+    // `h1` is the current unique owner.
+    auto h1 = h0;
+    h0 = b.null_handle();
+
+    // ... use `h1` ...
+
+    // OK - `h0` is a null handle.
+    b.release(h0);
+
+    // ... use `h1` ...
+
+    // Resource released. `h1` points to an invalid handle.
+    b.release(h1);
+
+    // Optional safety measure.
+    h1 = b.null_handle();
+}
+
+void simulate_shared_ownership()
+{
+    behavior::file_b b;
+
+    // `h0` is one the current owners.
+    // [`h0`]
+    auto h0 = b.acquire();
+
+    // ... use `h0` ...
+
+    // `h1` is one the current owners.
+    // [`h0`, `h1`]
+    auto h1 = h0;
+
+    // ... use `h0` ...
+    // ... use `h1` ...
+
+    // `h2` is one the current owners.
+    // [`h0`, `h1`, `h2`]
+    auto h2 = h0;
+
+    // ... use `h0` ...
+    // ... use `h1` ...
+    // ... use `h2` ...
+
+    // `h1` does not own the resource anymore.
+    // [`h0`, `h2`]
+    h1 = b.null_handle();
+
+    // ... use `h0` ...
+    // ... use `h2` ...
+
+    // `h0` does not own the resource anymore.
+    // [`h2`]
+    h0 = b.null_handle();
+
+    // ... use `h2` ...
+
+    // `h2` does not own the resource anymore.
+    // []
+    // No more owners - resource will be released.
+    b.release(h2);
+    h2 = b.null_handle();
+}
