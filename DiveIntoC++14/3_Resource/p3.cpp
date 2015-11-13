@@ -333,9 +333,68 @@ namespace resource
     }
 }
 
+void simulate_unique_ownership();
+void real_unique_ownership();
+
 int main()
 {
+    simulate_unique_ownership();
+    real_unique_ownership();
     return 0;
 }
+
+void simulate_unique_ownership()
+{
+    behavior::file_b b;
+
+    // `h0` is the current unique owner.
+    auto h0 = b.acquire();
+
+    // ... use `h0` ...
+
+    // `h1` is the current unique owner.
+    auto h1 = h0;
+    h0 = b.null_handle();
+
+    // ... use `h1` ...
+
+    // OK - `h0` is a null handle.
+    b.release(h0);
+
+    // ... use `h1` ...
+
+    // Resource released. `h1` points to an invalid handle.
+    b.release(h1);
+
+    // Optional safety measure.
+    h1 = b.null_handle();
+}
+
+void real_unique_ownership()
+{
+    using ur_type = resource::unique<behavior::file_b>;
+
+    // `h0` is the current unique owner.
+    ur_type h0(legacy::open_file());
+
+    // ... use `h0` ...
+
+    // `h1` is the current unique owner.
+    auto h1 = std::move(h0);
+
+    // ... use `h1` ...
+
+    // OK - `h0` is a null handle.
+    // (nothing to do)
+
+    // ... use `h1` ...
+
+    // Resource released. `h1` points to an invalid handle.
+    // (nothing to do)
+
+    // Optional safety measure.
+    // (nothing to do)
+}
+
 
 // TODO:
