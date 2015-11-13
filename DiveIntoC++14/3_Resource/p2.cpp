@@ -9,6 +9,8 @@
 // commonly used resource handles and put them into a dedicated namespace for
 // readability.
 
+// We're gonna do a lot of "perfect forwarding" later on - let's define a macro
+// that reduces the amount of required boilerplate and prevents silly mistakes.
 #define FWD(...) ::std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
 namespace legacy
@@ -36,7 +38,7 @@ namespace legacy
     {
         if(ptr == nullptr)
         {
-            // std::cout << "free_store_delete(nullptr)\n";
+            // Do nothing.
         }
         else
         {
@@ -73,7 +75,6 @@ namespace legacy
         if(*ptr == 0)
         {
             // Do nothing.
-            // std::cout << "glDeleteBuffers(0)\n";
         }
         else
         {
@@ -103,7 +104,6 @@ namespace legacy
         if(id == -1)
         {
             // Do nothing.
-            // std::cout << "close_file(-1)\n";
         }
         else
         {
@@ -131,7 +131,10 @@ namespace behavior
     {
         using handle_type = T*;
 
-        handle_type null_handle() { return nullptr; }
+        handle_type null_handle()
+        {
+            return nullptr;
+        }
 
         template <typename... Ts>
         handle_type acquire(Ts&&... xs)
@@ -158,7 +161,10 @@ namespace behavior
 
         using handle_type = vbo_handle;
 
-        handle_type null_handle() { return {0, 0}; }
+        handle_type null_handle()
+        {
+            return {0, 0};
+        }
 
         handle_type acquire(std::size_t n)
         {
@@ -180,11 +186,20 @@ namespace behavior
     {
         using handle_type = int;
 
-        handle_type null_handle() { return -1; }
+        handle_type null_handle()
+        {
+            return -1;
+        }
 
-        handle_type acquire() { return legacy::open_file(); }
+        handle_type acquire()
+        {
+            return legacy::open_file();
+        }
 
-        void release(const handle_type& handle) { legacy::close_file(handle); }
+        void release(const handle_type& handle)
+        {
+            legacy::close_file(handle);
+        }
     };
 }
 
@@ -269,3 +284,5 @@ void simulate_shared_ownership()
     b.release(h2);
     h2 = b.null_handle();
 }
+
+// TODO:

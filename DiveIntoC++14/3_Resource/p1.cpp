@@ -42,8 +42,14 @@
 
 struct Resource
 {
-    Resource() { std::cout << "Acquire.\n"; }
-    ~Resource() { std::cout << "Release.\n"; }
+    Resource()
+    {
+        std::cout << "Acquire.\n";
+    }
+    ~Resource()
+    {
+        std::cout << "Release.\n";
+    }
 };
 
 void unique_ptr_example()
@@ -52,7 +58,7 @@ void unique_ptr_example()
     std::unique_ptr<Resource> uptr0;
 
     // Acquire resource.
-    uptr0.reset(new Resource);
+    uptr0 = std::make_unique<Resource>();
 
     // Transfer ownership.
     std::unique_ptr<Resource> uptr1{std::move(uptr0)};
@@ -68,7 +74,7 @@ void shared_ptr_example()
 
     {
         // Acquire resource.
-        std::shared_ptr<Resource> sptr0{new Resource};
+        std::shared_ptr<Resource> sptr0{std::make_shared<Resource>()};
 
         // Share ownership.
         std::shared_ptr<Resource> sptr1{sptr0};
