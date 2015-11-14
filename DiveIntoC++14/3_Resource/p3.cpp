@@ -336,8 +336,10 @@ namespace resource
 void simulate_unique_ownership();
 void real_unique_ownership();
 
+
 int main()
 {
+// Both gcc and clang produce same assembly, you can try on godbolt 
     simulate_unique_ownership();
     real_unique_ownership();
     return 0;
