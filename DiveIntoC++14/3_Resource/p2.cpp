@@ -136,13 +136,18 @@ namespace behavior
             return nullptr;
         }
 
+        // To avoid confusing name clashes with generic resource class
+        // implementations:
+        // * Behavior "acquiring" will be called `init`.
+        // * Behavior "releasing" will be called `deinit`.
+
         template <typename... Ts>
-        handle_type acquire(Ts&&... xs)
+        handle_type init(Ts&&... xs)
         {
             return legacy::free_store_new<T>(FWD(xs)...);
         }
 
-        void release(const handle_type& handle)
+        void deinit(const handle_type& handle)
         {
             legacy::free_store_delete(handle);
         }
@@ -166,7 +171,7 @@ namespace behavior
             return {0, 0};
         }
 
-        handle_type acquire(std::size_t n)
+        handle_type init(std::size_t n)
         {
             handle_type result;
 
@@ -176,7 +181,7 @@ namespace behavior
             return result;
         }
 
-        void release(const handle_type& handle)
+        void deinit(const handle_type& handle)
         {
             legacy::glDeleteBuffers(handle._n, &handle._id);
         }
@@ -191,12 +196,12 @@ namespace behavior
             return -1;
         }
 
-        handle_type acquire()
+        handle_type init()
         {
             return legacy::open_file();
         }
 
-        void release(const handle_type& handle)
+        void deinit(const handle_type& handle)
         {
             legacy::close_file(handle);
         }
@@ -218,7 +223,7 @@ void simulate_unique_ownership()
     behavior::file_b b;
 
     // `h0` is the current unique owner.
-    auto h0 = b.acquire();
+    auto h0 = b.init();
 
     // ... use `h0` ...
 
@@ -229,12 +234,12 @@ void simulate_unique_ownership()
     // ... use `h1` ...
 
     // OK - `h0` is a null handle.
-    b.release(h0);
+    b.deinit(h0);
 
     // ... use `h1` ...
 
     // Resource released. `h1` points to an invalid handle.
-    b.release(h1);
+    b.deinit(h1);
 
     // Optional safety measure.
     h1 = b.null_handle();
@@ -246,7 +251,7 @@ void simulate_shared_ownership()
 
     // `h0` is one the current owners.
     // [`h0`]
-    auto h0 = b.acquire();
+    auto h0 = b.init();
 
     // ... use `h0` ...
 
@@ -281,8 +286,10 @@ void simulate_shared_ownership()
     // `h2` does not own the resource anymore.
     // []
     // No more owners - resource will be released.
-    b.release(h2);
+    b.deinit(h2);
     h2 = b.null_handle();
 }
 
-// TODO:
+// In the next code segment, we'll implement an "unique" ownership resource
+// class, that will have the same behavior as our `simulate_unique_ownership`
+// test function.

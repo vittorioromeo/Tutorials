@@ -117,6 +117,5 @@ int main()
 // Let's begin our journey in the next code segment!
 
 // TODO:
-// * rename behavior::release?
 // * implement scope_guard with unique resource
 // * this tutorial will only cover unique resources
