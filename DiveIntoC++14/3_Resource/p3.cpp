@@ -475,6 +475,7 @@ void real_unique_ownership()
 
 // Also, generated assembly with `-O3` is identical for both
 // `simulate_unique_ownership` and `real_unique_ownership`.
+// (Tested with both `g++ 5.2` and `clang++ 3.7`)
 
 // This is an amazing "cost-free abstraction".
 // We achieved safety, readability and convenience... 
