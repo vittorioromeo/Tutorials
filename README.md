@@ -21,6 +21,8 @@ Repository for my YouTube tutorials / code snippets
 
 * [**Dive into C++14 - [2] - `for_each_argument` explained and expanded**](https://www.youtube.com/watch?v=Za92Tz_g0zQ)
 
+* [**Dive into C++14 - [3] - Generic "unique resource" wrapper**](https://www.youtube.com/watch?v=Ehdl6j3Ace4)
+
 ---
 
 * [**Handle-based entity management experiments**](https://www.youtube.com/watch?v=_-KSlhppzNE)
