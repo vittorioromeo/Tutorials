@@ -372,7 +372,7 @@ void example_vbo()
 // There is another way of dealing with "uniqueness semantics" in scopes.
 // Ever heard of "scope guards"?
 
-// They're a feature in some languages, such as "D", that allow users to
+// They're a feature in some languages, such as "D", that allows users to
 // conveniently write a piece of code anywhere in a scope, which will only be
 // executed at the end of the scope.
 

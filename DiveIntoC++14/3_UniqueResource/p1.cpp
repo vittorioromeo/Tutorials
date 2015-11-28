@@ -13,8 +13,9 @@
 // management.
 
 // We're going to implement our own generic "unique resource" class, with
-// semantics to `std::unique_ptr`.
-// We're also going to implement a "scope guard".
+// semantics equivalent to `std::unique_ptr`.
+
+// We're also going to implement a simple "scope guard".
 
 // So, what's a "resource" and why do we need to "manage" it?
 
@@ -132,6 +133,3 @@ int main()
 }
 
 // Let's begin our journey in the next code segment!
-
-// TODO:
-// * implement scope_guard with unique resource
