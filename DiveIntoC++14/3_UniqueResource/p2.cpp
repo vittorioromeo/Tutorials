@@ -9,10 +9,6 @@
 // commonly used resource handles and put them into a dedicated namespace for
 // readability.
 
-// We're gonna do a lot of "perfect forwarding" later on - let's define a macro
-// that reduces the amount of required boilerplate and prevents silly mistakes.
-#define FWD(...) ::std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
-
 namespace legacy
 {
     // Example: free-store allocated pointers.
@@ -70,6 +66,7 @@ namespace legacy
 
         *ptr = next_id++;
     }
+
     void glDeleteBuffers(GLsizei n, const GLuint* ptr)
     {
         if(*ptr == 0)
@@ -99,6 +96,7 @@ namespace legacy
 
         return next_id++;
     }
+
     void close_file(int id)
     {
         if(id == -1)
@@ -140,11 +138,10 @@ namespace behavior
         // implementations:
         // * Behavior "acquiring" will be called `init`.
         // * Behavior "releasing" will be called `deinit`.
-
-        template <typename... Ts>
-        handle_type init(Ts&&... xs)
+        
+        handle_type init(T* ptr)
         {
-            return legacy::free_store_new<T>(FWD(xs)...);
+            return legacy::free_store_new<T>(ptr);
         }
 
         void deinit(const handle_type& handle)
@@ -153,16 +150,19 @@ namespace behavior
         }
     };
 
-    // TODO: mention other ways of dealing witn n
-    // * could be a template parameter
-    // * could be stored in the behavior (unsafe)
     struct vbo_b
     {
+        // Our VBO handle type will consist of both the id and the `n`
+        // parameter.
+
         struct vbo_handle
         {
             legacy::GLuint _id;
             legacy::GLsizei _n;
         };
+
+        // The `_n` VBO parameter could also be a template parameter, if its
+        // value is known at compile-time.
 
         using handle_type = vbo_handle;
 
@@ -208,16 +208,7 @@ namespace behavior
     };
 }
 
-void simulate_unique_ownership();
-void simulate_shared_ownership();
-
-int main()
-{
-    simulate_unique_ownership();
-    simulate_shared_ownership();
-    return 0;
-}
-
+// Let's now simulate our desired "uniqueness semantics".
 void simulate_unique_ownership()
 {
     behavior::file_b b;
@@ -228,66 +219,32 @@ void simulate_unique_ownership()
     // ... use `h0` ...
 
     // `h1` is the current unique owner.
+    // (Ownership transfer.)
     auto h1 = h0;
     h0 = b.null_handle();
 
     // ... use `h1` ...
 
     // OK - `h0` is a null handle.
+    // (This will be done automatically.)
     b.deinit(h0);
 
     // ... use `h1` ...
 
-    // Resource released. `h1` points to an invalid handle.
+    // Resource released. `h1` will point to a "null handle".
+    // (This will be done automatically.)
     b.deinit(h1);
-
-    // Optional safety measure.
     h1 = b.null_handle();
 }
 
-void simulate_shared_ownership()
+int main()
 {
-    behavior::file_b b;
+    simulate_unique_ownership();
+    // Prints:
+    // "open_file() -> 1"
+    // "close_file(1)"
 
-    // `h0` is one the current owners.
-    // [`h0`]
-    auto h0 = b.init();
-
-    // ... use `h0` ...
-
-    // `h1` is one the current owners.
-    // [`h0`, `h1`]
-    auto h1 = h0;
-
-    // ... use `h0` ...
-    // ... use `h1` ...
-
-    // `h2` is one the current owners.
-    // [`h0`, `h1`, `h2`]
-    auto h2 = h0;
-
-    // ... use `h0` ...
-    // ... use `h1` ...
-    // ... use `h2` ...
-
-    // `h1` does not own the resource anymore.
-    // [`h0`, `h2`]
-    h1 = b.null_handle();
-
-    // ... use `h0` ...
-    // ... use `h2` ...
-
-    // `h0` does not own the resource anymore.
-    // [`h2`]
-    h0 = b.null_handle();
-
-    // ... use `h2` ...
-
-    // `h2` does not own the resource anymore.
-    // []
-    // No more owners - resource will be released.
-    b.deinit(h2);
-    h2 = b.null_handle();
+    return 0;
 }
 
 // In the next code segment, we'll implement an "unique" ownership resource

@@ -12,6 +12,10 @@
 // In this tutorial we'll cover a very important topic: safe resource
 // management.
 
+// We're going to implement our own generic "unique resource" class, with
+// semantics to `std::unique_ptr`.
+// We're also going to implement a "scope guard".
+
 // So, what's a "resource" and why do we need to "manage" it?
 
 // From Wikipedia:
@@ -19,8 +23,8 @@
 // limited availability within a computer system. Virtual system resources
 // include files, network connections, and memory areas."
 
-// You can think of files, sockets, heap-allocated pointers, game
-// textures/sounds, and much more as resources.
+// Real-life examples include: files, sockets, heap-allocated memory locations,
+// game resources (models, sounds, textures, ...).
 
 // All resources have something in common: they need to be "acquired" and
 // "released".
@@ -61,10 +65,12 @@ void unique_ptr_example()
     uptr0 = std::make_unique<Resource>();
 
     // Transfer ownership.
+    // (The explicit `std::move` is required.)
     std::unique_ptr<Resource> uptr1{std::move(uptr0)};
 
     // ...
     // Release resource.
+    // (The resource is automatically released.)
 }
 
 void shared_ptr_example()
@@ -83,11 +89,13 @@ void shared_ptr_example()
 
         // ...
         // `sptr0`, `sptr1`, `sptr2` lose ownership.
+        // `external_sptr` still has ownership.
     }
 
     // ...
     // `external_sptr` loses ownership.
     // Release resource.
+    // (The resource is automatically released.)
 }
 
 // C++11 smart pointers are great and should always be used when dealing with
@@ -97,8 +105,11 @@ void shared_ptr_example()
 // We can actually define and use custom release mechanisms for standard smart
 // pointers, but they're still restricted to pointer-like resource handles.
 
-// In this tutorial we'll implement our own `unique` and `shared` resource
-// management facilities, that can support arbitrary handle and resource types.
+// In this tutorial we'll implement our own "unique" generic resource wrapper
+// that will support arbitrary handle and resource types.
+
+// In a future tutorial, we'll expand upon this implementation, adding "shared"
+// generic resource wrappers that behave like `std::shared_ptr`.
 
 // We'll also see a generic way of wrapping any resource in a convenient modern
 // interface.
@@ -107,9 +118,15 @@ int main()
 {
     unique_ptr_example();
     std::cout << "\n";
+    // Prints:
+    // "Acquire."
+    // "Release."
 
     shared_ptr_example();
     std::cout << "\n";
+    // Prints:
+    // "Acquire."
+    // "Release."
 
     return 0;
 }
@@ -118,4 +135,3 @@ int main()
 
 // TODO:
 // * implement scope_guard with unique resource
-// * this tutorial will only cover unique resources

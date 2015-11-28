@@ -4,12 +4,7 @@
 // http://vittorioromeo.info | vittorio.romeo@outlook.com
 
 #include <iostream>
-
-// Let's implement a generic resource class that will have "unique ownership"
-// semantics.
-
-// That means that there will always be only a single owner for a resource.
-// Ownership can be moved from one object to another, but can never be shared.
+#include <memory>
 
 namespace legacy
 {
@@ -160,43 +155,11 @@ namespace behavior
     };
 }
 
-// We'll create the class in the `resource` namespace.
 namespace resource
 {
-    // Forward-declaration.
-    // Resource classes will take the behavior as a template parameter.
-    template <typename TBehavior>
-    class unique;
-
-    // We will not store an instance of `TBehavior` inside the class - we will
-    // actually inherit from it.
-
-    // Why?
-
-    // Most of the time, behavior classes will be stateless and won't contain
-    // any field. Theorically, their size should be exactly zero.
-
-    // However, a zero-sized member stored inside a class, will actually be
-    // handled as if it were of size 1. In short, this is done to prevent
-    // problems with pointer arithmetic and struct memory layout.
-
-    // By using inheritance, we allow the compiler to perform the "empty base
-    // optimization". This optimization will avoid any unnecessary memory
-    // overhead, and will actually count the size of empty classes as zero.
-
-    // More information:
-    // en.cppreference.com/w/cpp/language/ebo
-    // en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Empty_Base_Optimization
-
-    // In practice, using this optimization allows us to create an `unique_ptr`
-    // "clone" whose size is exactly equivalent to its stored pointer.
-
     template <typename TBehavior>
     class unique : TBehavior
     {
-        // Let's start by defining the interface of `unique`.
-        // We will follow `unique_ptr`'s interface as closely as possible.
-
     public:
         using behavior_type = TBehavior;
         using handle_type = typename behavior_type::handle_type;
@@ -204,74 +167,36 @@ namespace resource
     private:
         handle_type _handle;
 
-        // For convenience and readability, we'll write some methods that cast
-        // `this` to `TBehavior` and return the result of the cast.
-
-        // This will allow us to cleanly access the methods inside `TBehavior`,
-        // our base class.
-
         auto& as_behavior() noexcept;
         const auto& as_behavior() const noexcept;
 
     public:
-        // The default constructor will initialize `_handle` with a null handle.
         unique() noexcept;
-
-        // The destructor will take care of releasing the resource.
         ~unique() noexcept;
 
-        // We don't want to share ownership - let's prevent copies.
         unique(const unique&) = delete;
         unique& operator=(const unique&) = delete;
 
-        // We may want to create an unique resource from an existing handle.
-        // Using `explicit` will prevent implicit conversions.
         explicit unique(const handle_type& handle) noexcept;
 
-        // To transfer ownership between `unique` instances, we will use move
-        // operations.
         unique(unique&& rhs) noexcept;
         auto& operator=(unique&&) noexcept;
 
-        // `release` will not call `TBehavior::deinit` - it will simply stop the
-        // current `unique` instance from being the owner of the current handle.
-        // This is done by returning the current handle, then setting it to a
-        // null handle.
         auto release() noexcept;
 
-        // `reset` will actually call `TBehavior::deinit`.
-        // By default the handle will be replaced with a null one.
-        // An overload to replace the handle with an existing one is provided.
         void reset() noexcept;
         void reset(const handle_type& handle) noexcept;
 
-        // Swapping two `unique` instances will simply swap their handles.
         void swap(unique& rhs) noexcept;
 
-        // `get` will return the current handle, without changing it.
         auto get() const noexcept;
 
-        // An explicit `bool` conversion will allow us to conveniently check the
-        // validity of the handle.
         explicit operator bool() const noexcept;
 
-        // We're going to define equality operators and a global `swap` - since
-        // they're going to access private members, we're marking them as
-        // `friend`.
         friend bool operator==(const unique& lhs, const unique& rhs) noexcept;
         friend bool operator!=(const unique& lhs, const unique& rhs) noexcept;
         friend void swap(unique& lhs, unique& rhs) noexcept;
     };
-
-    // One missing piece of the `std::unique_ptr` interface is an `std::hash`
-    // specialization, which is often used in hash-based containers like
-    // `std::unordered_map`.
-
-    // We're not implementing it to make the code simpler - one possible
-    // approach would be defining an `hash` function inside every behavior
-    // class.
-
-    // We can now define the previously declared `unique` methods.
 
     template <typename TBehavior>
     auto& unique<TBehavior>::as_behavior() noexcept
@@ -285,14 +210,11 @@ namespace resource
         return static_cast<const behavior_type&>(*this);
     }
 
-    // Default constructor: null handle initialization.
     template <typename TBehavior>
     unique<TBehavior>::unique() noexcept : _handle{as_behavior().null_handle()}
     {
     }
 
-    // Upon destruction, we will call `reset` - it will take of calling
-    // `TBehavior::deinit`.
     template <typename TBehavior>
     unique<TBehavior>::~unique() noexcept
     {
@@ -305,18 +227,12 @@ namespace resource
     {
     }
 
-
-    // When move-constructing, we simply set the current handle to `rhs`'s
-    // handle, then call `rhs.release()`.
     template <typename TBehavior>
     unique<TBehavior>::unique(unique&& rhs) noexcept : _handle{rhs._handle}
     {
         rhs.release();
     }
 
-    // When move-assigning, the current instance may already be the owner of
-    // some resource. Therefore, we must call `reset()` before setting the new
-    // handle.
     template <typename TBehavior>
     auto& unique<TBehavior>::operator=(unique&& rhs) noexcept
     {
@@ -336,9 +252,6 @@ namespace resource
         return temp_handle;
     }
 
-    // Both overloads of `reset` will immediately call `TBehavior::deinit` and
-    // replace the current handle. The implementation of `TBehavior::deinit`
-    // needs to handle null handles correctly.
     template <typename TBehavior>
     void unique<TBehavior>::reset() noexcept
     {
@@ -356,13 +269,6 @@ namespace resource
     template <typename TBehavior>
     void unique<TBehavior>::swap(unique& rhs) noexcept
     {
-        // When implementing member `swap` functions for user-defined classes,
-        // it is important to enable correct ADL lookup by `using std::swap`.
-
-        // More information here:
-        // en.cppreference.com/w/cpp/algorithm/swap
-        // stackoverflow.com/questions/6380862
-
         using std::swap;
         swap(_handle, rhs._handle);
     }
@@ -378,7 +284,6 @@ namespace resource
     {
         return _handle != as_behavior().null_handle();
     }
-
 
     template <typename TBehavior>
     bool operator==(
@@ -401,77 +306,273 @@ namespace resource
     }
 }
 
-// To quickly test our `resource::unique` implementation, we'll write a
-// `real_unique_ownership` function that should have the same semantics as the
-// "fake" one.
-
-// We will then compare the output and the generated assembly to detect eventual
-// implementation mistakes and/or run-time overhead.
-
-void simulate_unique_ownership()
+struct Resource
 {
-    behavior::file_b b;
-    auto h0 = b.init();
+    Resource()
+    {
+        std::cout << "Acquire.\n";
+    }
+    ~Resource()
+    {
+        std::cout << "Release.\n";
+    }
+};
 
-    auto h1 = h0;
-    h0 = b.null_handle();
+void example_free_store_ptr_vs_unique_ptr()
+{
+    using my_behavior = behavior::free_store_b<Resource>;
+    using my_resource = resource::unique<my_behavior>;
 
-    b.deinit(h0);
+    static_assert(                                                // .
+        sizeof(my_resource) == sizeof(std::unique_ptr<Resource>), // .
+        "");
 
-    b.deinit(h1);
-    h1 = b.null_handle();
+    {
+        my_resource r0{my_behavior{}.init(new Resource)};
+        auto r1(std::move(r0));
+    }
+    // Prints:
+    // "Acquire."
+    // "free_store_new"
+    // "free_store_delete"
+    // "Release."
+
+
+    {
+        std::unique_ptr<Resource> r0{new Resource};
+        auto r1(std::move(r0));
+    }
+    // Prints:
+    // "Acquire."
+    // "Release."
+
+    // Possible improvements to our interface:
+    // * Add `make_unique_resource<TBehavior>(...)` variadic function.
+    // * Use SFINAE to enable "pointer propagation" `*` and `->` operators for
+    // pointer-like types.
+
+    // Again, the generated assembly for both "g++" and "clang++" (using `-O3`)
+    // was identical.
 }
 
-void real_unique_ownership()
+void example_vbo()
 {
-    // `h0` is the current unique owner.
-    resource::unique<behavior::file_b> h0(legacy::open_file());
+    using my_behavior = behavior::vbo_b;
+    using my_resource = resource::unique<my_behavior>;
 
-    // ... use `h0` ...
+    {
+        my_resource r0{my_behavior{}.init(4)};
+        auto r1(std::move(r0));
+    }
+    // Prints:
+    // "glGenBuffers(4, ptr) -> 1"
+    // "glDeleteBuffers(4, 1)"
+}
 
-    // `h1` is the current unique owner.
-    auto h1 = std::move(h0);
+// There is another way of dealing with "uniqueness semantics" in scopes.
+// Ever heard of "scope guards"?
 
-    // ... use `h1` ...
+// They're a feature in some languages, such as "D", that allow users to
+// conveniently write a piece of code anywhere in a scope, which will only be
+// executed at the end of the scope.
 
-    // OK - `h0` is a null handle.
-    // (Done automatically.)
+// All "scope guards" will be executed in reverse order (guards that appear
+// later in the scope will be executed first).
 
-    // ... use `h1` ...
+// Sounds familiar?
+// We can implement "scope guards" as a resource.
 
-    // Resource released. `h1` will point to a "null handle".
-    // (Done automatically.)
+struct scope_guard_behavior
+{
+    // Our handle type will be a simple pointer-to-function.
+    // The target function has to return `void` and has to take zero arguments.
+    using handle_type = void (*)();
+
+    // A more efficient implementation would avoid the function pointer overhead
+    // by passing the function to the handle type as a template parameter.
+
+    // Check out N4189 for a "scope guard" and a generic "RAII wrapper"
+    // proposal:
+    // open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4189.pdf
+
+    handle_type null_handle()
+    {
+        return handle_type{};
+    }
+
+    handle_type init(void (*fn_ptr)())
+    {
+        return fn_ptr;
+    }
+
+    void deinit(const handle_type& handle)
+    {
+        (*handle)();
+    }
+};
+
+template <typename TFunction>
+auto make_scope_guard(TFunction f)
+{
+    using my_behavior = scope_guard_behavior;
+    using my_resource = resource::unique<my_behavior>;
+    return my_resource{my_behavior{}.init(f)};
+}
+
+void example_scope_guard_0()
+{
+    auto s0 = make_scope_guard([]
+        {
+            std::cout << "A\n";
+        });
+
+    std::cout << sizeof(s0) << "\n";
+
+    auto s1 = make_scope_guard([]
+        {
+            std::cout << "B\n";
+        });
+
+    auto s2 = make_scope_guard([]
+        {
+            std::cout << "C\n";
+        });
+
+    // Prints:
+    // "C"
+    // "B"
+    // "A"
+
+    // The calls are executed backwards, as expected.
+}
+
+void example_scope_guard_1()
+{
+    // By explicitly writing scopes, we can change the order of the calls.
+
+    {
+        {
+            auto s0 = make_scope_guard([]
+                {
+                    std::cout << "A\n";
+                });
+        }
+
+        auto s1 = make_scope_guard([]
+            {
+                std::cout << "B\n";
+            });
+    }
+
+    auto s2 = make_scope_guard([]
+        {
+            std::cout << "C\n";
+        });
+
+    // Prints:
+    // "A"
+    // "B"
+    // "C"
+}
+
+// We can actually avoid manually specifying an unique name every time and an
+// empty lambda capture list by using a macro.
+
+#define DELAYED_CAT(a, b) a##b
+#define CAT(a, b) DELAYED_CAT(a, b)
+
+// The `SCOPE_GUARD` macro takes a variadic amount of tokens (our function
+// body), and puts them inside a `make_scope_guard` call, adding the empty
+// capture list. The result of the call is then assigned to a variable with an
+// unique name, computed using a very unlikely name prefix and the current line
+// number.
+
+#define SCOPE_GUARD(...) \
+    auto CAT(_strange_var_name_, __LINE__) = make_scope_guard([] __VA_ARGS__)
+
+// The following examples are much easier to read and do not require the user to
+// invent an unique name for every "scope guard".
+
+void example_pretty_scope_guard_0()
+{
+    SCOPE_GUARD(
+        {
+            std::cout << "A\n";
+        });
+
+    SCOPE_GUARD(
+        {
+            std::cout << "B\n";
+        });
+
+    SCOPE_GUARD(
+        {
+            std::cout << "C\n";
+        });
+
+    // Prints:
+    // "C"
+    // "B"
+    // "A"
+}
+
+void example_pretty_scope_guard_1()
+{
+    {
+        {
+            SCOPE_GUARD(
+                {
+                    std::cout << "A\n";
+                });
+        }
+
+        SCOPE_GUARD(
+            {
+                std::cout << "B\n";
+            });
+    }
+
+    SCOPE_GUARD(
+        {
+            std::cout << "C\n";
+        });
+
+    // Prints:
+    // "A"
+    // "B"
+    // "C"
 }
 
 int main()
 {
-    simulate_unique_ownership();
-    // Prints:
-    // "open_file() -> 1"
-    // "close_file(1)"
+    example_free_store_ptr_vs_unique_ptr();
+    std::cout << "\n";
 
-    real_unique_ownership();
-    // Prints:
-    // "open_file() -> 2"
-    // "close_file(2)"
+    example_vbo();
+    std::cout << "\n";
+
+    example_scope_guard_0();
+    std::cout << "\n";
+
+    example_scope_guard_1();
+    std::cout << "\n";
+
+    example_pretty_scope_guard_0();
+    std::cout << "\n";
+
+    example_pretty_scope_guard_1();
+    std::cout << "\n";
 
     return 0;
 }
 
-// Good news everyone!
+// Thank you very much for watching this video!
+// I hope you found the covered topics interesting.
 
-// The output is exactly what we expected.
-// The code we have to write is a lot shorter and much much safer - there is no
-// risk of forgetting to release a resource and causing a leak!
+// You can fork/look at the full source code on GitHub:
+// http://github.com/SuperV1234/Tutorials
 
-// Also, generated assembly with `-O3` is identical for both
-// `simulate_unique_ownership` and `real_unique_ownership`.
-// (Tested with both "g++ 5.2" and "clang++ 3.7")
+// Check out my website for more tutorials/projects and to personally get in
+// touch with me.
 
-// This is a textbook example of a "cost-free abstraction".
-
-// We achieved safety, readability and convenience...
-// ...without any run-time overhead.
-
-// In the next code segment, we'll cover some extra usage examples, and we'll
-// implement a "scope guard", using "uniqueness semantics".
+// http://vittorioromeo.info
