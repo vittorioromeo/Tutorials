@@ -307,16 +307,16 @@ namespace resource
 
 
     // When move-constructing, we simply set the current handle to `rhs`'s
-    // handle, then call `rhs.release()`.
+    // handle, and make `rhs` lose ownership, by calling `rhs.release()`.
     template <typename TBehavior>
-    unique<TBehavior>::unique(unique&& rhs) noexcept : _handle{rhs._handle}
+    unique<TBehavior>::unique(unique&& rhs) noexcept : _handle{rhs.release()}
     {
-        rhs.release();
     }
 
     // When move-assigning, the current instance may already be the owner of
     // some resource. Therefore, we must call `reset()` before setting the new
-    // handle.
+    // handle. We call `reset` by using the returned value from `rhs.release()`.
+    // This makes `rhs` lose ownership of its handle, as intended.
     template <typename TBehavior>
     auto& unique<TBehavior>::operator=(unique&& rhs) noexcept
     {

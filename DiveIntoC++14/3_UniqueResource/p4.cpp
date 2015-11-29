@@ -228,9 +228,8 @@ namespace resource
     }
 
     template <typename TBehavior>
-    unique<TBehavior>::unique(unique&& rhs) noexcept : _handle{rhs._handle}
+    unique<TBehavior>::unique(unique&& rhs) noexcept : _handle{rhs.release()}
     {
-        rhs.release();
     }
 
     template <typename TBehavior>
