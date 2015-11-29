@@ -236,11 +236,7 @@ namespace resource
     template <typename TBehavior>
     auto& unique<TBehavior>::operator=(unique&& rhs) noexcept
     {
-        reset();
-
-        _handle = rhs._handle;
-        rhs.release();
-
+        reset(rhs.release());
         return *this;
     }
 
