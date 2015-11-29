@@ -103,11 +103,20 @@ void shared_ptr_example()
 // memory allocation. But, how do they work? How are they implemented?
 
 // And... could they be used for other resource types?
-// We can actually define and use custom release mechanisms for standard smart
-// pointers, but they're still restricted to pointer-like resource handles.
+// The answer is "yes".
 
-// In this tutorial we'll implement our own "unique" generic resource wrapper
-// that will support arbitrary handle and resource types.
+// It is possible to adapt non pointer-like handles to the `NullablePointer`
+// concept using simple wrapper classes.
+
+// Doing this allows the usage of standard smart pointer with any resource type.
+// More information:
+// * en.cppreference.com/w/cpp/concept/NullablePointer
+// * stackoverflow.com/a/11002936/598696
+// * goo.gl/W2x302
+
+// Nevertheless, for educational purposes and to understand the commonalities
+// between resource types and handle types, we're going to implement our own
+// `std::unique_ptr`-like generic "unique wrapper".
 
 // In a future tutorial, we'll expand upon this implementation, adding "shared"
 // generic resource wrappers that behave like `std::shared_ptr`.
