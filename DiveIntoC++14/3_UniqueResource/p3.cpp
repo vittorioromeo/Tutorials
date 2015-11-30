@@ -469,5 +469,9 @@ int main()
 // We achieved safety, readability and convenience...
 // ...without any run-time overhead.
 
+// Check out this article by Manu Sánchez for another cost-free "generic unique
+// resource" design/implementation:
+// manu343726.github.io/resurce-handlers-and-value-semantics/
+
 // In the next code segment, we'll cover some extra usage examples, and we'll
 // implement a "scope guard", using "uniqueness semantics".
