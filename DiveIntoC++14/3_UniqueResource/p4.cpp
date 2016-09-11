@@ -385,9 +385,10 @@ struct scope_guard_behavior
 
     // A more efficient implementation would avoid the function pointer overhead
     // by passing the function to the handle type as a template parameter.
-
-    // Check out N4189 for a "scope guard" and a generic "RAII wrapper"
-    // proposal:
+    // This is not in the scope of `resource::unique`, as it is not possible to
+    // elegantly define a `null_handle` for a template-based scope guard
+    // implementation. Check out N4189 for a "scope guard" and a generic "RAII
+    // wrapper" proposal:
     // open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4189.pdf
 
     handle_type null_handle()
