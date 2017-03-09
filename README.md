@@ -3,6 +3,13 @@ Tutorials
 
 Repository for my YouTube tutorials / code snippets
 
+Requires the SFML library to be installed.
+
+On Mac:
+```
+brew install sfml
+```
+
 ---
 
 * [**Dive into C++11 - [1] - Arkanoid clone in 160~ lines of code (SFML 2.1)**](https://www.youtube.com/watch?v=_4K3tsKa1Uc)
