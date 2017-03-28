@@ -2,6 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
+#include <cmath>
 #include <SFML/Graphics.hpp>
 
 using namespace std;
@@ -141,10 +142,10 @@ void testCollision(Brick& mBrick, Ball& mBall)
     // If the magnitude of the left overlap is smaller than the
     // right one we can safely assume the ball hit the brick
     // from the left.
-    bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
+    bool ballFromLeft(fabs(overlapLeft) < fabs(overlapRight));
 
     // We can apply the same idea for top/bottom collisions.
-    bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
+    bool ballFromTop(fabs(overlapTop) < fabs(overlapBottom));
 
     // Let's store the minimum overlaps for the X and Y axes.
     float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
