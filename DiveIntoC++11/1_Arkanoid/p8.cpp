@@ -142,10 +142,10 @@ void testCollision(Brick& mBrick, Ball& mBall)
     // If the magnitude of the left overlap is smaller than the
     // right one we can safely assume the ball hit the brick
     // from the left.
-    bool ballFromLeft(fabs(overlapLeft) < fabs(overlapRight));
+    bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
 
     // We can apply the same idea for top/bottom collisions.
-    bool ballFromTop(fabs(overlapTop) < fabs(overlapBottom));
+    bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
 
     // Let's store the minimum overlaps for the X and Y axes.
     float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};

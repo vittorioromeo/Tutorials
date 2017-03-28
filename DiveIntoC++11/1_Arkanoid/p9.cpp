@@ -128,13 +128,13 @@ void testCollision(Brick& mBrick, Ball& mBall)
     float overlapTop{mBall.bottom() - mBrick.top()};
     float overlapBottom{mBrick.bottom() - mBall.top()};
 
-    bool ballFromLeft(fabs(overlapLeft) < fabs(overlapRight));
-    bool ballFromTop(fabs(overlapTop) < fabs(overlapBottom));
+    bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
+    bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
 
     float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
     float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
 
-    if(fabs(minOverlapX) < fabs(minOverlapY))
+    if(abs(minOverlapX) < abs(minOverlapY))
         mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
     else
         mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
