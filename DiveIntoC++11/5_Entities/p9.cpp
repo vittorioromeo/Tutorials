@@ -132,7 +132,7 @@ namespace CompositionArkanoid
         }
     };
 
-    struct Manager
+    class Manager
     {
     private:
         std::vector<std::unique_ptr<Entity>> entities;
