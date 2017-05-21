@@ -1,7 +1,16 @@
 Tutorials
 =========
 
-Repository for my YouTube tutorials / code snippets
+> **Repository for my YouTube tutorials / code snippets.**
+
+[![license][badge.license]][license]
+[![gratipay][badge.gratipay]][gratipay]
+
+[badge.license]: http://img.shields.io/badge/license-afl%203.0-blue.svg?style=flat-square
+[badge.gratipay]: https://img.shields.io/gratipay/user/SuperV1234.svg?style=flat-square
+
+[license]: https://github.com/SuperV1234/Tutorials/blob/master/LICENSE
+[gratipay]: https://gratipay.com/~SuperV1234/
 
 ---
 
