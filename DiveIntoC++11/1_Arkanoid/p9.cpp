@@ -153,13 +153,15 @@ int main()
 
     RenderWindow window{{windowWidth, windowHeight}, "Arkanoid - 9"};
     window.setFramerateLimit(60);
-
+    
+    Event event;
     while(true)
     {
         window.clear(Color::Black);
 
-        if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
-
+        while(window.pollEvent(event)){
+        if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) window.close();
+        }
         ball.update();
         paddle.update();
         testCollision(paddle, ball);
